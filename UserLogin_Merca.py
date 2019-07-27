@@ -53,6 +53,10 @@ def registrar():
             return redirect(url_for(login))
     return render_template('register.html', error=error)
 
+@app.route('/about')
+def about():
+    return render_template('contact.html')
+
 if __name__ == '__main__':
     #app.secret_key = 'mysecret'
     app.run(debug=True)
