@@ -202,46 +202,48 @@
             <!-- End Search Popup -->
         <!-- Start My Account Area -->
            <!-- Start My Account Area -->
-            <section class="my_account_area pt--80 pb--55 bg--white">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-6 col-12">
-                            <div class="my__account__wrapper">
-                                <h3 class="account__title">Crear una Cuenta</h3>
-                                {% if (error) %}
-                                <br>
-                                   <div class="alert alert-danger">
-                                         <strong>Esta cuenta ya existe</strong> Inicie Sesion
-                                    </div>
-                                {% endif %}
-                                
-                                    <div class="account__form">
-                                        <div class="input__box">
-                                            <div class="input-group">
-                                                <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                                                <input type="text" class="form-control" name="email" placeholder="Email" required>
+           <form method=POST action="{{url_for('register')}}">
+                <section class="my_account_area pt--80 pb--55 bg--white">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-6 col-12">
+                                <div class="my__account__wrapper">
+                                    <h3 class="account__title">Crear una Cuenta</h3>
+                                    {% if (error) %}
+                                    <br>
+                                    <div class="alert alert-danger">
+                                            <strong>Esta cuenta ya existe</strong> Inicie Sesion
+                                        </div>
+                                    {% endif %}
+                                    
+                                        <div class="account__form">
+                                            <div class="input__box">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                                                    <input type="text" class="form-control" name="email" placeholder="Email" required>
+                                                </div>
+                                            </div>
+                                            <div class="input__box">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                                                    <input type="password" class="form-control" placeholder="Contraseña" name="pass" id="pass" required>
+                                                </div>
+                                            <input type="hidden" name="tipo" id="tipo" value="Cliente">
+                                            </div>
+                                            <div class="form__btn">
+                                                <input type="submit" name="registrarse" class="btn btn-primary" value="Registrarse">
                                             </div>
                                         </div>
-                                        <div class="input__box">
-                                            <div class="input-group">
-                                                <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                                                <input type="password" class="form-control" placeholder="Contraseña" name="pass" id="pass" required>
-                                            </div>
-                                        <input type="hidden" name="tipo" id="tipo" value="Cliente">
-                                        </div>
-                                        <div class="form__btn">
-                                            <input type="submit" name="registrarse" class="btn btn-primary" value="Registrarse">
-                                        </div>
-                                    </div>
 
-                                <h4>Ya tienes cuenta?</h4>
-                                <button class="btn btn-primary" name="ingresa">Ingresar</button>
+                                    <h4>Ya tienes cuenta?</h4>
+                                    <button class="btn btn-primary" name="ingresa">Ingresar</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
-            <!-- End My Account Area -->
+                </section>
+           </form>
+                <!-- End My Account Area -->
 
 <<!-- Footer Area -->
             <footer id="wn__footer" class="footer__area bg__cat--8 brown--color">
