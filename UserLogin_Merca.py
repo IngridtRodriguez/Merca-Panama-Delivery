@@ -5,7 +5,7 @@ Created on Mon Jul 22 07:55:50 2019
 @author: ingri
 """
 
-from flask import Flask, request, session, redirect, render_template, url_for
+from flask import Flask, flash, request, session, redirect, render_template, url_for
 from flask_pymongo import PyMongo
 
 app = Flask(__name__)
@@ -33,25 +33,25 @@ def login():
 
     return 'Invalid username/password combination'
 
-#@app.route('/register', methods=['POST', 'GET'])
-#def iniciar_sesion():
-#    return render_template('login.html')
-
 @app.route('/register', methods=['POST', 'GET'])
 def registrar():
+    error=None #Esto es para tirar el error de que ya existe usuario que sale en el html (linea 212)
     if request.method == 'POST':
         if request.form['registrarse'] == 'Registrarse':
-            print("entré a registrarse")
-            users = mongo.db.users
-            existing_user = users.find_one({'correo' : request.form['email']})
-    
-            if existing_user is None:
-                users.insert({'correo' : request.form['correo'], 'password' : request.form['pass']})
+            usuarios = mongo.db.usuarios
+            existing_user = usuarios.find_one({'correo' : request.form['email']}) #buscando si usuario ya está
+            print(existing_user)
+
+            if existing_user:
+                error="Esta cuenta ya existe "
+            elif existing_user is None: 
+                usuarios.insert({'correo' : request.form['email'], 'password' : request.form['pass']})
                 #session['username'] = request.form['username']
                 return redirect(url_for('index'))
-            return 'That username already exists!'
-    
-    return render_template('register.html')
+        elif 'ingresa' in request.form:
+            print("estoy en boton ingresar")
+            return redirect(url_for(login))
+    return render_template('register.html', error=error)
 
 if __name__ == '__main__':
     #app.secret_key = 'mysecret'
