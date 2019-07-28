@@ -36,7 +36,7 @@
                     <div class="row">
                         <div class="col-md-6 col-sm-6 col-6 col-lg-2">
                             <div class="logo">
-                                <a href="templates/index.html">
+                                <a href="/">
                                     <img src="static/styles/images/logo/MercaDeliveryTransparente.png" alt="logo images">
                                 </a>
                             </div>
@@ -49,12 +49,12 @@
                                         <div class="megamenu mega03">
                                             <ul class="item item03">
                                                 <li class="title">Catalogo</li>
-                                                <li><a href="shop-grid.html">Frutas</a></li>
-                                                <li><a href="verdura.html">Verduras</a></li>
+                                                <li><a href="shop-grid">Frutas</a></li>
+                                                <li><a href="shop-grid">Verduras</a></li>
                                             </ul>
                                         </div>
                                     </li>
-                                    <li><a href="contact.html">Contacto</a></li>
+                                    <li><a href="about">Contacto</a></li>
                                 </ul>
                             </nav>
                         </div>
@@ -209,7 +209,7 @@
                             {% if (error) %}
                             <br>
                                 <div class="alert alert-danger">
-                                 <strong>Datos erroneos</strong> Vuelva a intentarlo
+                                 <strong>{{error}}</strong> Vuelva a intentarlo
                                 </div>
                             {% endif %}
                             
@@ -220,7 +220,7 @@
                                 </div>
                            {% endif %}
                                 <h3 class="account__title">Iniciar Sesion</h3>
-                                <form action="proceso-login" method="POST">
+                                <form action="login" method="POST">
                                     <div class="account__form">
                                         <div class="input__box">
                                         <div class="input-group">
@@ -295,6 +295,6 @@
             <!-- //Footer Area -->
     <script>
         function Redirect(){
-            location.href = 'register.html';
+            location.href = 'register';
         }
     </script>

@@ -39,7 +39,7 @@
                     <div class="row">
                         <div class="col-md-6 col-sm-6 col-6 col-lg-2">
                             <div class="logo">
-                                <a href="templates/index.html">
+                                <a href="/">
                                     <img src="static/styles/images/logo/MercaDeliveryTransparente.png" alt="logo images">
                                 </a>
                             </div>
@@ -57,7 +57,7 @@
                                             </ul>
                                         </div>
                                     </li>
-                                    <li><a href="templates/contact.html">Contacto</a></li>
+                                    <li><a href="about">Contacto</a></li>
                                 </ul>
                             </nav>
                         </div>
@@ -203,31 +203,15 @@
                 </div>
             </div>
             <!-- End Search Popup -->
-        <!-- Start Bradcaump area -->
-        <div class="ht__bradcaump__area bg-image--6">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="bradcaump__inner text-center">
-                            <h2 class="bradcaump-title">Contact Us</h2>
-                            <nav class="bradcaump-content">
-                                <a class="breadcrumb_item" href="templates/index.html">Home</a>
-                                <span class="brd-separetor">/</span>
-                                <span class="breadcrumb_item active">Contact Us</span>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- End Bradcaump area -->
+        
         <!-- Start Contact Area -->
         <section class="wn_contact_area bg--white pt--80 pb--80">
             <div class="google__map pb--80">
                 <div class="container">
                     <div class="row">
                         <div class="col-md-12">
-                            <div id="googleMap" style="width:100%;height:400px;"></div>></div>
+                            <div id="googleMap" style="width:100%;height:400px;"></div>>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -273,18 +257,18 @@
         </section>
 
         <script>
-            function myMap() {
-            var mapProp= {
-              center:new google.maps.LatLng(9.0297129,-79.580605),
-              zoom:15,
-            };
-            var map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
-            }
-            </script>
-            </script>
-                <script async defer
-                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAz8lmN0bbA0qBeUx7W8r-OW0B1_F2MZ0k&callback=myMap">
+                function myMap() {
+                var mapProp= {
+                  center:new google.maps.LatLng(9.0297129,-79.580605),
+                  zoom:15,
+                }
+                var map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
+                }
                 </script>
+                </script>
+                    <script async defer
+                    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBvh5pnfqVs7QwTzuHB7PXn7fD6Fb8N41U&callback=myMap">
+                    </script>
 
         <!-- End Contact Area -->
         <!-- Footer Area -->

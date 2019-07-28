@@ -23,15 +23,19 @@ def index():
 
 @app.route('/login', methods=['POST','GET'])
 def login():
+    error=None
     correos = mongo.db.usuarios
-    login_user = correos.find_one({'correo' : request.form['email']})
+    if request.method == 'POST':
+        login_user = correos.find_one({'correo' : request.form['email']})
+        print(login_user)
 
-    if login_user:
-        if request.form['pass'].encode('utf-8') == login_user['password'].encode('utf-8'):
+        if login_user:
+            if request.form['pass'].encode('utf-8') == login_user['password'].encode('utf-8'):
             #session['username'] = request.form['username']
-            return redirect(url_for('index'))
-
-    return 'Invalid username/password combination'
+                return redirect(url_for('index'))
+        else:
+            error="Datos erroneos"
+    return render_template('login.html', error=error)
 
 @app.route('/register', methods=['POST', 'GET'])
 def registrar():
@@ -55,7 +59,15 @@ def registrar():
 
 @app.route('/about')
 def about():
-    return render_template('contact.html')
+    return render_template('contacto.html')
+
+@app.route('/shop-grid')
+def shop_grid():
+    return render_template('shop-grid.html')
+
+@app.route('/single-product')
+def single_product():
+    return render_template('single-product.html')
 
 if __name__ == '__main__':
     #app.secret_key = 'mysecret'
