@@ -10,18 +10,60 @@ from flask_pymongo import PyMongo
 
 app = Flask(__name__)
 
+app.config['SECRET_KEY']='secretkey'
 app.config['MONGO_DBNAME'] = 'MercaDelivery'
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/MercaDelivery'
 
 mongo = PyMongo(app)
+logueado=False
+mi_carro=[]
+mis_ordenes=[]
+n_carrito=0
+cantidad_pedidos=0
+subtotal=0
+categories=[]
+
+def set_categorias():
+    categ=mongo.db.categorias
+    categories= list(categ.find({}))
+
+def set_carrito():
+    if 'username' in session:
+        carro = mongo.db.carrito
+        mi_carro=list(carro.find({'correo': session['username']}))
+        n_carrito=len(mi_carro)
+
+def set_ordenes():
+    orden= mongo.db.ordenes
+    mis_ordenes=list(orden.find({'correo': session['username']}))
+
+    cantidad_pedidos=0
+    #Esto es para saber la cantidad de pedidos que tiene
+    for ordenes in mis_ordenes:
+        if cantidad_pedidos < ordenes['numero']:
+            cantidad_pedidos = ordenes['numero']
+
+def set_subtotal():
+    if 'username' in session:
+        for elemento in mi_carro:
+            precio = elemento['precio']
+            cantidad= elemento['cantidad']
+            subtotal = subtotal + (precio*cantidad)
+
+#Pasa el carrito y las ordenes de la persona logueada a todas las paginas
+@app.context_processor
+def para_todos():
+    return dict(logueado=logueado, carro=mi_carro, n_carro=n_carrito, orden=mis_ordenes, n_ordenes=cantidad_pedidos, categorias=categories, subtotal=subtotal)
 
 @app.route('/')
 def index():
-    #if 'username' in session:
-    #   return 'You are logged in as ' + session['username']
+    if 'username' in session:
+        logueado=True
     categorias=list(mongo.db.categorias.find())
+    productos=mongo.db.articulos
+    articulos=list(productos.find({}))
 
-    return render_template('index.html', categorias=categorias)
+    return render_template('index.html', categorias=categorias, articulos=articulos)
 
 @app.route('/login', methods=['POST','GET'])
 def login():
@@ -33,7 +75,7 @@ def login():
 
         if login_user:
             if request.form['pass'].encode('utf-8') == login_user['password'].encode('utf-8'):
-            #session['username'] = request.form['username']
+                session['username'] = request.form['email']
                 return redirect(url_for('index'))
         else:
             error="Datos erroneos"

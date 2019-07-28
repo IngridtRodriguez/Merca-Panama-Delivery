@@ -21,7 +21,7 @@
                                     <ul class="item item03">
                                         {% for categoria in categorias %}
                                         <li>
-                                            <a href="{{ categoria.nombre }}">{%= categoria.Nombre %}</a>
+                                            <a href="/shop-grid/{{categoria['nombre']}}">{{ categoria['nombre'] }}</a>
                                         </li>
                                         {% endfor %}
                                     </ul>
@@ -33,8 +33,7 @@
                 </div>
                 <div class="col-md-6 col-sm-6 col-6 col-lg-2">
             <ul class="header__sidebar__right d-flex justify-content-end align-items-center">
-                <li class="shop_search"><a class="search__active" href="#"></a></li>
-                {% if (!logueado) %}
+                {% if not logueado %}
                     <li class="shopcart"><a class="cartbox_active" href="#"><span class="product_qun">0</span></a>
                         <!-- Start Shopping Cart -->
                         <div class="block-minicart minicart__active">
@@ -49,7 +48,7 @@
                                     <span></span>
                                 </div>
                                 <div class="mini_action checkout">
-                                    <a class="checkout__btn" href="Login">Inicia Sesion para ver tu canasta!</a>
+                                    <a class="checkout__btn" href="login">Inicia Sesion para ver tu canasta!</a>
                                 </div>
                                 <li class="setting__bar__icon"><a class="setting__active" href="#"></a>
                                     <div class="searchbar__content setting__block">
@@ -58,10 +57,10 @@
                                 </li>
                             </div>
                     {% else %}
-                        {% if not carrito %}
+                        {% if not carro %}
                         <li class="shopcart"><a class="cartbox_active" href="#"><span class="product_qun">0</span></a>
                         {% else %}
-                        <li class="shopcart"><a class="cartbox_active" href="#"><span class="product_qun">{% len(carrito) %}</span></a>
+                        <li class="shopcart"><a class="cartbox_active" href="#"><span class="product_qun">{{n_carro}}</span></a>
                         {% endif %}
                         <!-- Start Shopping Cart -->
                         <div class="block-minicart minicart__active">
@@ -70,17 +69,13 @@
                                     <span>Cerrar</span>
                                 </div>
                                 <div class="items-total d-flex justify-content-between">
-                                    <span>Productos: {% len(carrito) %}</span>
+                                    <span>Productos: {{ n_carro }}</span>
                                     <span>Subtotal</span>
                                 </div>
                                 <div class="total_amount text-right">
                                     <span>
-                                    {% subtotal = 0;
-                                    for elemento in carrito:
-                                        precio = elemento['precio']
-                                        cantidad = elemento['cantidad']
-                                        subtotal = (precio*cantidad) + subtotal
-                                    %}</span>
+                                        {{subtotal}}
+                                    </span>
                                 </div>
                                 <div class="mini_action checkout">
                                     {% if carrito %}
@@ -90,7 +85,7 @@
                                     {% endif %}
                                 </div>
                                 <div class="single__items">
-                                    {% for el in carrito { %>
+                                    {% for el in carro %}
                                         <div class="miniproduct">
                                             <div class="item01 d-flex">
                                                 <div class="thumb">
@@ -109,26 +104,25 @@
                                                 </div>
                                             </div>
                                         </div>  
-                                    {% endif %} 
+                                    {% endfor %} 
                                     {% if carrito %}
                                     <div class="mini_action cart">
                                         <a class="cart__btn" href="Cart">Ver y Editar Carrito</a>
                                     </div>
-                                    {% endfor %}
-                                
+                                    {% endif %}
+                            {% endif %}
                             </div>
                         </div>
                             
                     </div>
-                        {% endif %}
                     <!-- End Shopping Cart -->
                         <li class="setting__bar__icon"><a class="setting__active" href="#"></a>
                             <div class="searchbar__content setting__block">
                                 <div class="content-inner">
                                     <div class="switcher-currency">
                                         <strong class="label switcher-label">
-                                            {% if (correo) %}
-                                                {{ correo }}
+                                            {% if session['username'] %}
+                                                {{ session['username'] }}
                                             {% else %}
                                                 <span>Perfil</span>
                                             {% endif %}
@@ -141,8 +135,8 @@
                                                     <span><a href="Ordenes">Mis Ordenes</a></span>
                                                     <span><a href="LogOut">Salir</a></span>
                                                 {% else %}
-                                                    <span><a href="Login">Iniciar Sesion</a></span>
-                                                    <span><a href="register">Crear una Cuenta</a></span>
+                                                    <span><a href="/login">Iniciar Sesion</a></span>
+                                                    <span><a href="/register">Crear una Cuenta</a></span>
                                                 {% endif %}
                                                     
                                                    
@@ -169,7 +163,7 @@
                                 {% endfor %}
                                 </ul>
                             </li>
-                            <li><a href="Contacto">Contact</a></li>
+                            <li><a href="/about">Contact</a></li>
                         </ul>
                     </nav>
                 </div>
@@ -182,26 +176,5 @@
     </header>
 
     <!-- //Header -->
-    <!-- Start Search Popup -->
-    <div class="brown--color box-search-content search_active block-bg close__top">
-        <form id="search_mini_form" class="minisearch" action="#">
-            <div class="field__search">
-                <input type="text" placeholder="Que quiere buscar?">
-                <div class="action">
-                    <a href="#"><i class="zmdi zmdi-search"></i></a>
-                </div>
-            </div>
-        </form>
-        <div class="close__wrap">
-            <span>Cerrar</span>
-        </div>
-    </div>
-
-    <body>
-            <div id="content">
-            {% block content %}
-            {% endblock %}
-            </div>
-        </body>
 
     <!-- End Search Popup -->
