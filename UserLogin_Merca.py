@@ -49,7 +49,7 @@ def registrar():
             if existing_user:
                 error="Esta cuenta ya existe "
             elif existing_user is None: 
-                usuarios.insert({'correo' : request.form['email'], 'password' : request.form['pass']})
+                usuarios.insert({'correo' : request.form['email'], 'password' : request.form['pass'],'tipo':'cliente'})
                 #session['username'] = request.form['username']
                 return redirect(url_for('index'))
         elif 'ingresa' in request.form:
@@ -61,14 +61,32 @@ def registrar():
 def about():
     return render_template('contacto.html')
 
-@app.route('/shop-grid')
-def shop_grid():
-    return render_template('shop-grid.html')
+@app.route('/shop-grid', defaults={'categoria_en_seleccion':'Frutas'})
+@app.route('/shop-grid/<categoria_en_seleccion>')
+def shop_grid(categoria_en_seleccion):
+    #catalogo_en_seleccion=
+    catalogo = []
+    productos=mongo.db.articulos
+    categorias=list(mongo.db.categorias.find())
+    categoria_en_seleccion=categoria_en_seleccion
+    print(categoria_en_seleccion)
 
-@app.route('/single-product')
-def single_product():
-    return render_template('single-product.html')
+    #Hago una listas de diccionario [{id: adkn, nombre: 'Piña', 'cantidad': 0, 'categoria': 'Frutas', 'descripcion':'algo', 'detalles':'algo mas ', 'precio': '1.05'}, {producto 2...}]
+    catalogo = list(productos.find({})) 
+
+    #Pasando la lista manejo la carga de los productos desde el html (Linea 230)
+    return render_template('shop-grid.html', catalogo=catalogo, categorias=categorias,categoria_en_seleccion=categoria_en_seleccion)
+
+@app.route('/producto/<articulo>')
+def single_product(articulo):
+    productos=mongo.db.articulos
+    catalogo_frutas = len(list(productos.find({'categoria':'Frutas'})))
+    catalogo_verduras = len(list(productos.find({'categoria':'Verduras'})))
+    
+    display=productos.find_one({'nombre': articulo})
+    print(catalogo_frutas, catalogo_verduras, display)
+
+    return render_template('single-product.html', articulo=articulo, display=display ,n_frutas=catalogo_frutas, n_verduras=catalogo_verduras)
 
 if __name__ == '__main__':
-    #app.secret_key = 'mysecret'
     app.run(debug=True)

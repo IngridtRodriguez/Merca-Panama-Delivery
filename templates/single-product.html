@@ -8,8 +8,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <!-- Favicons -->
-        <link rel="shortcut icon" href="images/icons/cartIcon.png">
-        <link rel="apple-touch-icon" href="images/icon.png">
+        <link rel="shortcut icon" href="/static/styles/images/icons/cartIcon.png">
+        <link rel="apple-touch-icon" href="/static/styles/images/icon.png">
 
         <!-- Google font (font-family: 'Roboto', sans-serif; Poppins ; Satisfy) -->
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet"> 
@@ -17,15 +17,15 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
 
         <!-- Stylesheets -->
-        <link rel="stylesheet" href="css/bootstrap.min.css">
-        <link rel="stylesheet" href="css/plugins.css">
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="/static/styles/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/styles/css/plugins.css">
+        <link rel="stylesheet" href="/static/styles/style.css">
 
         <!-- Cusom css -->
-        <link rel="stylesheet" href="css/custom.css">
+        <link rel="stylesheet" href="/static/styles/css/custom.css">
 
         <!-- Modernizer js -->
-        <script src="js/vendor/modernizr-3.5.0.min.js"></script>
+        <script src="/static/styles/js/vendor/modernizr-3.5.0.min.js"></script>
     </head>
     <body>
          <!-- Main wrapper -->
@@ -36,25 +36,25 @@
                     <div class="row">
                         <div class="col-md-6 col-sm-6 col-6 col-lg-2">
                             <div class="logo">
-                                <a href="index.html">
-                                    <img src="images/logo/MercaDeliveryTransparente.png" alt="logo images">
+                                <a href="/">
+                                    <img src="/static/styles/images/logo/MercaDeliveryTransparente.png" alt="logo images">
                                 </a>
                             </div>
                         </div>
                         <div class="col-lg-8 d-none d-lg-block">
                             <nav class="mainmenu__nav">
                                 <ul class="meninmenu d-flex justify-content-start">
-                                    <li class="drop with--one--item"><a href="index.html">Home</a></li>
+                                    <li class="drop with--one--item"><a href="/">Home</a></li>
                                     <li class="drop"><a href="#">Catalogo</a>
                                         <div class="megamenu mega03">
                                             <ul class="item item03">
                                                 <li class="title">Catalogo</li>
-                                                <li><a href="shop-grid.html">Frutas</a></li>
-                                                <li><a href="verdura.html">Verduras</a></li>
+                                                <li><a href="shop-grid/">Frutas</a></li>
+                                                <li><a href="shop-grid/Verduras">Verduras</a></li>
                                             </ul>
                                         </div>
                                     </li>
-                                    <li><a href="contact.html">Contacto</a></li>
+                                    <li><a href="/about">Contacto</a></li>
                                 </ul>
                             </nav>
                         </div>
@@ -149,8 +149,8 @@
                                                         <div class="setting__menu">
                                                             <span><a href="#">Mi cuenta</a></span>
                                                             <span><a href="#">Ordenes</a></span>
-                                                            <span><a href="#">Iniciar Sesion</a></span>
-                                                            <span><a href="register.html">Crear una Cuenta</a></span>
+                                                            <span><a href="/login">Iniciar Sesion</a></span>
+                                                            <span><a href="/register">Crear una Cuenta</a></span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -166,14 +166,14 @@
                         <div class="col-lg-12 d-none">
                             <nav class="mobilemenu__nav">
                                 <ul class="meninmenu">
-                                    <li><a href="index.html">Home</a></li>
+                                    <li><a href="/">Home</a></li>
                                     <li><a href="#">Catalogo</a>
                                         <ul>
-                                            <li><a href="shop-grid.html">Frutas</a></li>
-                                            <li><a href="verdura.html">Verduras</a></li>
+                                            <li><a href="{{url_for('shop_grid')}}">Frutas</a></li>
+                                            <li><a href="{{url_for('shop_grid')}}">Verduras</a></li>
                                         </ul>
                                     </li>
-                                    <li><a href="contact.html">Contact</a></li>
+                                    <li><a href="/about">Contact</a></li>
                                 </ul>
                             </nav>
                         </div>
@@ -201,16 +201,16 @@
             </div>
             <!-- End Search Popup -->
             <!-- Start Bradcaump area -->
-            <div class="ht__bradcaump__area bg-image--4">
+            <div class="ht__bradcaump__area bg-image--6">
                 <div class="container">
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="bradcaump__inner text-center">
-                                <h2 class="bradcaump-title">Shop Single</h2>
+                                <h2 class="bradcaump-title">Nuestros productos</h2>
                                 <nav class="bradcaump-content">
-                                    <a class="breadcrumb_item" href="index.html">Home</a>
+                                    <a class="breadcrumb_item" href="/">Home</a>
                                     <span class="brd-separetor">/</span>
-                                    <span class="breadcrumb_item active">Shop Single</span>
+                                    <span class="breadcrumb_item active">Producto</span>
                                 </nav>
                             </div>
                         </div>
@@ -228,20 +228,20 @@
                                     <div class="col-lg-6 col-12">
                                         <div class="wn__fotorama__wrapper">
                                             <div class="fotorama wn__fotorama__action" data-nav="thumbs">
-                                                <a href="1.jpg"><img src="images/product/1.jpg" alt=""></a>
+                                                <a href="1.jpg"><img src="/static/styles/images/articulos/{{display['nombre']}}1.jpg" alt=""></a>
                                                 <!--<a href="2.jpg"><img src="images/product/2.jpg" alt=""></a>-->
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-lg-6 col-12">
                                         <div class="product__info__main">
-                                            <h1>Tomate</h1>
+                                            <h1>{{ display['nombre'] }}</h1>
                                             <div class="price-box">
-                                                <span>$1.00</span>
+                                                <span>{{"%.2f" % display['precio']}}</span>
                                             </div>
                                             <div class="product__overview">
                                                 <p>
-                                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                                                    {{display['descripcion']}}
                                                 </p>
 
                                             </div>
@@ -267,12 +267,7 @@
                                     <!-- Start Single Tab Content -->
                                     <div class="pro__tab_label tab-pane fade show active" id="nav-details" role="tabpanel">
                                         <div class="description__attribute">
-                                            <p>Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.Ideal for cold-weather training or work outdoors, the Chaz Hoodie promises superior warmth with every wear. Thick material blocks out the wind as ribbed cuffs and bottom band seal in body heat.</p>
-                                            <ul>
-                                                <li>• Two-tone gray heather hoodie.</li>
-                                                <li>• Drawstring-adjustable hood. </li>
-                                                <li>• Machine wash/dry.</li>
-                                            </ul>
+                                            <p>{{display['detalles']}}</p>
                                         </div>
                                     </div>
                                     <!-- End Single Tab Content -->
@@ -282,10 +277,10 @@
                         <div class="col-lg-3 col-12 md-mt-40 sm-mt-40">
                             <div class="shop__sidebar">
                                 <aside class="wedget__categories poroduct--cat">
-                                    <h3 class="wedget__title">Product Categories</h3>
+                                    <h3 class="wedget__title">Categorias de Productos</h3>
                                     <ul>
-                                        <li><a href="#">Frutas <span>(3)</span></a></li>
-                                        <li><a href="#">Verduras <span>(4)</span></a></li>
+                                        <li><a href="{{ url_for('shop_grid') }}">Frutas <span>{{n_frutas}}</span></a></li>
+                                        <li><a href="{{ url_for('shop_grid') }}">Verduras <span>{{n_verduras}}</span></a></li>
                                     </ul>
                                 </aside>
                             </div>
@@ -302,8 +297,8 @@
                             <div class="col-lg-12">
                                 <div class="footer__widget footer__menu">
                                     <div class="ft__logo">
-                                        <a href="index.html">
-                                            <img src="images/logo/MercaDeliveryTransparente.png" alt="logo">
+                                        <a href="/">
+                                            <img src="/static/styles/images/logo/MercaDeliveryTransparente.png" alt="logo">
                                         </a>
                                         <p>Redes Sociales: </p>
                                     </div>
@@ -315,9 +310,9 @@
                                         </ul>
                                         <ul class="mainmenu d-flex justify-content-center">
 
-                                            <li><a href="index.html">Todos los Productos</a></li>
+                                            <li><a href="{{ url_for('shop_grid') }}">Todos los Productos</a></li>
 
-                                            <li><a href="contact.html">Contacto</a></li>
+                                            <li><a href="/about">Contacto</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -341,101 +336,17 @@
                 </div>
             </footer>
             <!-- //Footer Area -->
-            <!-- QUICKVIEW PRODUCT -->
-            <div id="quickview-wrapper">
-                <!-- Modal -->
-                <div class="modal fade" id="productmodal" tabindex="-1" role="dialog">
-                    <div class="modal-dialog modal__container" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header modal__header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="modal-product">
-                                    <!-- Start product images -->
-                                    <div class="product-images">
-                                        <div class="main-image images">
-                                            <img alt="big images" src="images/product/big-img/1.jpg">
-                                        </div>
-                                    </div>
-                                    <!-- end product images -->
-                                    <div class="product-info">
-                                        <h1>Simple Fabric Bags</h1>
-                                        <div class="rating__and__review">
-                                            <ul class="rating">
-                                                <li><span class="ti-star"></span></li>
-                                                <li><span class="ti-star"></span></li>
-                                                <li><span class="ti-star"></span></li>
-                                                <li><span class="ti-star"></span></li>
-                                                <li><span class="ti-star"></span></li>
-                                            </ul>
-                                            <div class="review">
-                                                <a href="#">4 customer reviews</a>
-                                            </div>
-                                        </div>
-                                        <div class="price-box-3">
-                                            <div class="s-price-box">
-                                                <span class="new-price">$17.20</span>
-                                                <span class="old-price">$45.00</span>
-                                            </div>
-                                        </div>
-                                        <div class="quick-desc">
-                                            Designed for simplicity and made from high quality materials. Its sleek geometry and material combinations creates a modern look.
-                                        </div>
-                                        <div class="select__color">
-                                            <h2>Select color</h2>
-                                            <ul class="color__list">
-                                                <li class="red"><a title="Red" href="#">Red</a></li>
-                                                <li class="gold"><a title="Gold" href="#">Gold</a></li>
-                                                <li class="orange"><a title="Orange" href="#">Orange</a></li>
-                                                <li class="orange"><a title="Orange" href="#">Orange</a></li>
-                                            </ul>
-                                        </div>
-                                        <div class="select__size">
-                                            <h2>Select size</h2>
-                                            <ul class="color__list">
-                                                <li class="l__size"><a title="L" href="#">L</a></li>
-                                                <li class="m__size"><a title="M" href="#">M</a></li>
-                                                <li class="s__size"><a title="S" href="#">S</a></li>
-                                                <li class="xl__size"><a title="XL" href="#">XL</a></li>
-                                                <li class="xxl__size"><a title="XXL" href="#">XXL</a></li>
-                                            </ul>
-                                        </div>
-                                        <div class="social-sharing">
-                                            <div class="widget widget_socialsharing_widget">
-                                                <h3 class="widget-title-modal">Share this product</h3>
-                                                <ul class="social__net social__net--2 d-flex justify-content-start">
-                                                    <li class="facebook"><a href="#" class="rss social-icon"><i class="zmdi zmdi-rss"></i></a></li>
-                                                    <li class="linkedin"><a href="#" class="linkedin social-icon"><i class="zmdi zmdi-linkedin"></i></a></li>
-                                                    <li class="pinterest"><a href="#" class="pinterest social-icon"><i class="zmdi zmdi-pinterest"></i></a></li>
-                                                    <li class="tumblr"><a href="#" class="tumblr social-icon"><i class="zmdi zmdi-tumblr"></i></a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="addtocart-btn">
-                                            <a href="#">Add to cart</a>
-                                        </div>
-                                    </div><!-- .product-info -->
-                                </div><!-- .modal-product -->
-                            </div><!-- .modal-body -->
-                        </div><!-- .modal-content -->
-                    </div><!-- .modal-dialog -->
-                </div>
-                <!-- END Modal -->
-            </div>
-            <!-- END QUICKVIEW PRODUCT -->
-
         </div>
         <!-- //Main wrapper -->
 
 
 
         <!-- JS Files -->
-        <script src="js/vendor/jquery-3.2.1.min.js"></script>
-        <script src="js/popper.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/plugins.js"></script>
-        <script src="js/active.js"></script>
+        <script src="/static/styles/js/vendor/jquery-3.2.1.min.js"></script>
+        <script src="/static/styles/js/popper.min.js"></script>
+        <script src="/static/styles/js/bootstrap.min.js"></script>
+        <script src="/static/styles/js/plugins.js"></script>
+        <script src="/static/styles/js/active.js"></script>
 
     </body>
 </html>
