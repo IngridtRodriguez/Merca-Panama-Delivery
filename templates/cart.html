@@ -8,8 +8,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <!-- Favicons -->
-        <link rel="shortcut icon" href="images/icons/cartIcon.png">
-        <link rel="apple-touch-icon" href="images/icon.png">
+        <link rel="shortcut icon" href="/styles/images/icons/cartIcon.png">
+        <link rel="apple-touch-icon" href="/styles/images/images/icon.png">
 
         <!-- Google font (font-family: 'Roboto', sans-serif; Poppins ; Satisfy) -->
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet"> 
@@ -17,15 +17,15 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
 
         <!-- Stylesheets -->
-        <link rel="stylesheet" href="css/bootstrap.min.css">
-        <link rel="stylesheet" href="css/plugins.css">
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="/styles/images/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/styles/images/css/plugins.css">
+        <link rel="stylesheet" href="/styles/images/style.css">
 
         <!-- Cusom css -->
-        <link rel="stylesheet" href="css/custom.css">
+        <link rel="stylesheet" href="/styles/images/css/custom.css">
 
         <!-- Modernizer js -->
-        <script src="js/vendor/modernizr-3.5.0.min.js"></script>
+        <script src="/styles/images/js/vendor/modernizr-3.5.0.min.js"></script>
     </head>
     <body>
          <!-- Main wrapper -->
@@ -36,25 +36,25 @@
                     <div class="row">
                         <div class="col-md-6 col-sm-6 col-6 col-lg-2">
                             <div class="logo">
-                                <a href="index.html">
-                                    <img src="images/logo/MercaDeliveryTransparente.png" alt="logo images">
+                                <a href="{{url_for('index')}}">
+                                    <img src="/styles/images/images/logo/MercaDeliveryTransparente.png" alt="logo images">
                                 </a>
                             </div>
                         </div>
                         <div class="col-lg-8 d-none d-lg-block">
                             <nav class="mainmenu__nav">
                                 <ul class="meninmenu d-flex justify-content-start">
-                                    <li class="drop with--one--item"><a href="index.html">Home</a></li>
+                                    <li class="drop with--one--item"><a href="{{url_for('index')}}">Home</a></li>
                                     <li class="drop"><a href="#">Catalogo</a>
                                         <div class="megamenu mega03">
                                             <ul class="item item03">
                                                 <li class="title">Catalogo</li>
-                                                <li><a href="shop-grid.html">Frutas</a></li>
+                                                <li><a href="{{url_for('shop_grid')}}">Frutas</a></li>
                                                 <li><a href="verdura.html">Verduras</a></li>
                                             </ul>
                                         </div>
                                     </li>
-                                    <li><a href="contact.html">Contacto</a></li>
+                                    <li><a href="/about">Contacto</a></li>
                                 </ul>
                             </nav>
                         </div>
@@ -201,7 +201,7 @@
             </div>
             <!-- End Search Popup -->
             <!-- Start Bradcaump area -->
-            <div class="ht__bradcaump__area bg-image--3">
+            <div class="ht__bradcaump__area bg-image--6">
                 <div class="container">
                     <div class="row">
                         <div class="col-lg-12">
@@ -216,83 +216,123 @@
             </div>
             <!-- End Bradcaump area -->
             <!-- cart-main-area start -->
-            <div class="cart-main-area section-padding--lg bg--white">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-12 col-sm-12 ol-lg-12">
-                            <form action="#">               
-                                <div class="table-content wnro__table table-responsive">
-                                    <table>
-                                        <thead>
-                                            <tr class="title-top">
-                                                <th class="product-thumbnail">Imagen</th>
-                                                <th class="product-name">Producto</th>
-                                                <th class="product-price">Precio</th>
-                                                <th class="product-quantity">Cantidad</th>
-                                                <th class="product-subtotal">Total</th>
-                                                <th class="product-remove">Remover</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td class="product-thumbnail"><a href="#"><img src="images/product/sm-3/1.jpg" alt="product img"></a></td>
-                                                <td class="product-name"><a href="#">Sandia</a></td>
-                                                <td class="product-price"><span class="amount">$4.00</span></td>
-                                                <td class="product-quantity"><input type="number" value="2"></td>
-                                                <td class="product-subtotal">$8.00</td>
-                                                <td class="product-remove"><a href="#">X</a></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="product-thumbnail"><a href="#"><img src="images/product/sm-3/2.jpg" alt="product img"></a></td>
-                                                <td class="product-name"><a href="#">Papaya</a></td>
-                                                <td class="product-price"><span class="amount">$4.50</span></td>
-                                                <td class="product-quantity"><input type="number" value="4"></td>
-                                                <td class="product-subtotal">$18.00</td>
-                                                <td class="product-remove"><a href="#">X</a></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="product-thumbnail"><a href="#"><img src="images/product/sm-3/3.jpg" alt="product img"></a></td>
-                                                <td class="product-name"><a href="#">Mango</a></td>
-                                                <td class="product-price"><span class="amount">$3.00</span></td>
-                                                <td class="product-quantity"><input type="number" value="3"></td>
-                                                <td class="product-subtotal">$9.00</td>
-                                                <td class="product-remove"><a href="#">X</a></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </form> 
-                            <div class="cartbox__btn">
-                                <ul class="cart__btn__list d-flex flex-wrap flex-md-nowrap flex-lg-nowrap justify-content-between">
-                                    <li><a href="#">actualizar Carrito</a></li>
-                                    <li><a href="checkout.html">Pagar</a></li>
+        <div class="cart-main-area section-padding--lg bg--white">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 ol-lg-12">
+                        <form action="#">               
+                            <div class="table-content wnro__table table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr class="title-top">
+                                            <th class="product-thumbnail">Imagen</th>
+                                            <th class="product-name">Producto</th>
+                                            <th class="product-price">Precio</th>
+                                            <th class="product-quantity">Cantidad</th>
+                                            <th class="product-subtotal">Total</th>
+                                            <th class="product-remove">Remover</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <%
+                                        var subtotal = 0;
+                                        var i = -1;
+                                        for(var j=0;j<carrito.length;j++){
+                                            i++;
+                                            subtotal = (carrito[j].Precio*carrito[j].Cantidad) + subtotal;
+                                            %>
+                                        <tr> 
+                                            <td class="product-thumbnail"><a href="Producto?articulo=<%= carrito[j].Nombre %>"><img src="images/articulos/<%= carrito[j].Nombre %>1.jpg" alt="product img"></a></td>
+                                            <td class="product-name"><a href="Producto?articulo=<%= carrito[j].Nombre %>"><%= carrito[j].Nombre %></a></td>
+                                            <td class="product-price"><span class="amount">$<%= (carrito[j].Precio).toFixed(2) %></span></td>
+                                            <td class="product-quantity"><input type="number" name="cantidad" value="<%= carrito[j].Cantidad %>" min="1">
+                                            <a href="#" name="boton" onclick="Redirect('<%= carrito[j].Nombre %>','<%= i %>'); return false">🔄</a>
+                                            <center><div class="spinner-border spinner-border-sm  text-primary" name="spinner"></div></center>
+                                            </td>
+                                            <td class="product-subtotal">$<%= (carrito[j].Precio*carrito[j].Cantidad).toFixed(2) %></td>
+                                            <td class="product-remove"><a href="EliminardelCarrito?articulo=<%= carrito[j].Nombre %> " onclick="eliminarBotonX('<%= i %>')" name="remover" >X</a>
+                                            <center><div class="spinner-border spinner-border-sm  text-primary" name="spinner_remover"></div></center>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </form> 
+                        <div class="cartbox__btn">
+                            <ul class="cart__btn__list d-flex flex-wrap flex-md-nowrap flex-lg-nowrap justify-content-between">
+                                <% if (carrito.length == 0){ %>
+                                    
+                               <% }else{ %>
+                                <li></li>
+                                <li><a href="checkout">Tramitar Pedido</a></li>
+                               <% } %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <% if (carrito.length == 0){ %>
+                <center><h2 class="title__be--2">Tu carrito esta vacio! <span class="color--theme"></span></h2></center>
+                <% }
+                else{ %>
+                <div class="row">
+                    <div class="col-lg-6 offset-lg-6">
+                        <div class="cartbox__total__area">
+                            <div class="cartbox-total d-flex justify-content-between">
+                                <ul class="cart__total__list">
+                                    <li>Total de Compra</li>
+                                    <li>Delivery</li>
+                                </ul>
+                                <ul class="cart__total__tk">
+                                    <li>$<%= subtotal.toFixed(2) %></li>
+                                    <li>$4.50</li>
                                 </ul>
                             </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-6 offset-lg-6">
-                            <div class="cartbox__total__area">
-                                <div class="cartbox-total d-flex justify-content-between">
-                                    <ul class="cart__total__list">
-                                        <li>Total de Compra</li>
-                                        <li>Delivery</li>
-                                    </ul>
-                                    <ul class="cart__total__tk">
-                                        <li>$70</li>
-                                        <li>$70</li>
-                                    </ul>
-                                </div>
-                                <div class="cart__total__amount">
-                                    <span>Total a Pagar</span>
-                                    <span>$140</span>
-                                </div>
+                            <div class="cart__total__amount">
+                                <span>Total a Pagar</span>
+                                <span>$<%= (subtotal+4.50).toFixed(2) %></span>
                             </div>
                         </div>
                     </div>
-                </div>  
-            </div>
-            <!-- cart-main-area end -->
+                </div>
+                <% } %>
+            </div>  
+        </div>
+    </div>
+    <!-- //Main wrapper -->
+
+    <script>
+        window.onload = ocultarSpinner();
+        
+        function ocultarSpinner() {
+            for(var Posicion=0;Posicion<=<%= i %>;Posicion++){
+                var x = document.getElementsByName("spinner")[Posicion];
+                var y = document.getElementsByName("spinner_remover")[Posicion];
+                x.style.display = "none";
+                y.style.display = "none";
+            }
+        }
+        function Redirect(Nombre,Posicion){
+            mostrarSpinner(Posicion);
+            var cantidad = document.getElementsByName("cantidad")[Posicion].value;
+            location.href = 'ActualizarCarrito?Nombre='+Nombre+'&Cantidad='+cantidad;
+        }
+        function mostrarSpinner(Posicion){
+            var x = document.getElementsByName("boton")[Posicion];
+            x.style.display = "none";
+            var z = document.getElementsByName("cantidad")[Posicion];
+            z.style.display = "none";
+            var y = document.getElementsByName("spinner")[Posicion];
+            y.style.display = "block";
+
+        }
+        function eliminarBotonX(Posicion){
+            var x = document.getElementsByName("remover")[Posicion];
+            x.style.display = "none";
+            var y = document.getElementsByName("spinner_remover")[Posicion];
+            y.style.display = "block";
+        }
+    </script>
             <!-- Footer Area -->
             <footer id="wn__footer" class="footer__area bg__cat--8 brown--color">
                 <div class="footer-static-top">
@@ -344,11 +384,11 @@
         <!-- //Main wrapper -->
 
         <!-- JS Files -->
-        <script src="js/vendor/jquery-3.2.1.min.js"></script>
-        <script src="js/popper.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-        <script src="js/plugins.js"></script>
-        <script src="js/active.js"></script>
+        <script src="static/styles/js/vendor/jquery-3.2.1.min.js"></script>
+        <script src="static/styles/js/popper.min.js"></script>
+        <script src="static/styles/js/bootstrap.min.js"></script>
+        <script src="static/styles/js/plugins.js"></script>
+        <script src="static/styles/js/active.js"></script>
 
     </body>
 </html>

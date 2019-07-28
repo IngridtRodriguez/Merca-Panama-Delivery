@@ -19,7 +19,9 @@ mongo = PyMongo(app)
 def index():
     #if 'username' in session:
     #   return 'You are logged in as ' + session['username']
-    return render_template('index.html')
+    categorias=list(mongo.db.categorias.find())
+
+    return render_template('index.html', categorias=categorias)
 
 @app.route('/login', methods=['POST','GET'])
 def login():
@@ -68,8 +70,6 @@ def shop_grid(categoria_en_seleccion):
     catalogo = []
     productos=mongo.db.articulos
     categorias=list(mongo.db.categorias.find())
-    categoria_en_seleccion=categoria_en_seleccion
-    print(categoria_en_seleccion)
 
     #Hago una listas de diccionario [{id: adkn, nombre: 'Piña', 'cantidad': 0, 'categoria': 'Frutas', 'descripcion':'algo', 'detalles':'algo mas ', 'precio': '1.05'}, {producto 2...}]
     catalogo = list(productos.find({})) 
@@ -87,6 +87,7 @@ def single_product(articulo):
     print(catalogo_frutas, catalogo_verduras, display)
 
     return render_template('single-product.html', articulo=articulo, display=display ,n_frutas=catalogo_frutas, n_verduras=catalogo_verduras)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
