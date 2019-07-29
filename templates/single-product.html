@@ -75,6 +75,12 @@
                                 <div class="row">
                                     <div class="col-lg-6 col-12">
                                         <div class="wn__fotorama__wrapper">
+                                                {% if mensaje %}
+                                                <br>
+                                                <div class="alert alert-success">
+                                                        <strong>{{mensaje}}</strong>
+                                                    </div>
+                                                {% endif %}
                                             <div class="fotorama wn__fotorama__action" data-nav="thumbs">
                                                 <a href="1.jpg"><img src="/static/styles/images/articulos/{{display['nombre']}}1.jpg" alt=""></a>
                                                 <!--<a href="2.jpg"><img src="images/product/2.jpg" alt=""></a>-->
@@ -93,13 +99,16 @@
                                                 </p>
 
                                             </div>
+                                            <form method=POST>
                                             <div class="box-tocart d-flex">
                                                 <span>Cantidad</span>
                                                 <input id="qty" class="input-text qty" name="qty" min="1" value="1" title="Qty" type="number">
+                                                
                                                 <div class="addtocart__actions">
-                                                    <button class="tocart" type="submit" title="Add to Cart" onclick="window.location.href = 'http://127.0.0.1:5000/cart';">Añadir al carrito</button>
+                                                    <input type="submit" class="tocart" name="anadir" value="Añadir al carrito" title="Add to Cart" href="{{url_for('carrito')}}"></button>
                                                 </div>
                                             </div>
+                                            </form>
                                             <div class="product_meta">
                                                 
                                             </div>

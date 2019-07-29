@@ -130,7 +130,7 @@ def shop_grid(categoria_en_seleccion):
     #Pasando la lista manejo la carga de los productos desde el html (Linea 230)
     return render_template('shop-grid.html', catalogo=catalogo, categorias=categorias,categoria_en_seleccion=categoria_en_seleccion, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado)
 
-@app.route('/producto/<articulo>')
+@app.route('/producto/<articulo>', methods=['POST', 'GET'])
 def single_product(articulo):
     if 'username' in session:
         logueado = True
@@ -138,11 +138,17 @@ def single_product(articulo):
     productos=mongo.db.articulos
     catalogo_frutas = len(list(productos.find({'categoria':'Frutas'})))
     catalogo_verduras = len(list(productos.find({'categoria':'Verduras'})))
-    
+    mensaje=None
     display=productos.find_one({'nombre': articulo})
     print(catalogo_frutas, catalogo_verduras, display)
 
-    return render_template('single-product.html', articulo=articulo, display=display , n_frutas=catalogo_frutas, n_verduras=catalogo_verduras, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado)
+    if request.method == 'POST':
+        if request.form['anadir'] == "Añadir al carrito":
+            carrito=mongo.db.carrito
+            carrito.insert({'correo' : session['username'], 'nombre' : articulo,'cantidad': int(request.form['qty']) ,'precio':display['precio']})
+            mensaje="Ya fue agregado al carrito"
+
+    return render_template('single-product.html', articulo=articulo, display=display , n_frutas=catalogo_frutas, n_verduras=catalogo_verduras, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado,mensaje=mensaje)
 
 @app.route('/cart/')
 def carrito():
@@ -152,11 +158,15 @@ def carrito():
     categorias=list(mongo.db.categorias.find())
     productos=mongo.db.articulos
     articulos=list(productos.find({}))
-
+    subtotal=0
+    delivery=4.50
     car = mongo.db.carrito
-    carrito = list(car.find({}))
+    carrito = list(car.find({'correo':session['username']}))
 
-    return render_template('cart.html', ccarrito=carrito, cant=len(carrito), categorias=categorias, articulos=articulos, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado)
+    for item in carrito:
+        subtotal= subtotal + float(item['precio']) * int(item['cantidad'])
+
+    return render_template('cart.html', ccarrito=carrito, cant=len(carrito), categorias=categorias, articulos=articulos, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado, sub=subtotal, deli=delivery)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -27,7 +27,7 @@
                                     </ul>
                                 </div>
                             </li>
-                            <li><a href="contacto">Contacto</a></li>
+                            <li><a href="{{url_for('about')}}">Contacto</a></li>
                         </ul>
                     </nav>
                 </div>
@@ -107,7 +107,7 @@
                                     {% endfor %} 
                                     {% if carrito %}
                                     <div class="mini_action cart">
-                                        <a class="cart__btn" href="Cart">Ver y Editar Carrito</a>
+                                        <a class="cart__btn" href="{{url_for('carrito')}}">Ver y Editar Carrito</a>
                                     </div>
                                     {% endif %}
                             {% endif %}
