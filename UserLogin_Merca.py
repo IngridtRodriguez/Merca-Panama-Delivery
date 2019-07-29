@@ -30,8 +30,8 @@ def set_categorias():
 def set_carrito():
     if 'username' in session:
         carro = mongo.db.carrito
-        mi_carro=list(carro.find({'correo': session['username']}))
-        n_carrito=len(mi_carro)
+        app.mi_carro=list(carro.find({'correo': session['username']}))
+        app.n_carrito=len(app.mi_carro)
 
 def set_ordenes():
     orden= mongo.db.ordenes
@@ -59,11 +59,22 @@ def para_todos():
 def index():
     if 'username' in session:
         logueado=True
+        set_carrito()
     categorias=list(mongo.db.categorias.find())
     productos=mongo.db.articulos
     articulos=list(productos.find({}))
 
-    return render_template('index.html', categorias=categorias, articulos=articulos)
+    return render_template('index.html', categorias=categorias, articulos=articulos, logueado=logueado, carrito=app.mi_carro, carro=app.n_carrito)
+
+
+@app.route('/logout')
+def logout():
+    logueado=False
+    categorias=list(mongo.db.categorias.find())
+    productos=mongo.db.articulos
+    articulos=list(productos.find({}))
+
+    return render_template('index.html', categorias=categorias, articulos=articulos, logueado=logueado)
 
 @app.route('/login', methods=['POST','GET'])
 def login():
@@ -117,10 +128,13 @@ def shop_grid(categoria_en_seleccion):
     catalogo = list(productos.find({})) 
 
     #Pasando la lista manejo la carga de los productos desde el html (Linea 230)
-    return render_template('shop-grid.html', catalogo=catalogo, categorias=categorias,categoria_en_seleccion=categoria_en_seleccion)
+    return render_template('shop-grid.html', catalogo=catalogo, categorias=categorias,categoria_en_seleccion=categoria_en_seleccion, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado)
 
 @app.route('/producto/<articulo>')
 def single_product(articulo):
+    if 'username' in session:
+        logueado = True
+        set_carrito()
     productos=mongo.db.articulos
     catalogo_frutas = len(list(productos.find({'categoria':'Frutas'})))
     catalogo_verduras = len(list(productos.find({'categoria':'Verduras'})))
@@ -128,8 +142,21 @@ def single_product(articulo):
     display=productos.find_one({'nombre': articulo})
     print(catalogo_frutas, catalogo_verduras, display)
 
-    return render_template('single-product.html', articulo=articulo, display=display ,n_frutas=catalogo_frutas, n_verduras=catalogo_verduras)
+    return render_template('single-product.html', articulo=articulo, display=display , n_frutas=catalogo_frutas, n_verduras=catalogo_verduras, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado)
 
+@app.route('/cart/')
+def carrito():
+    if 'username' in session:
+        logueado=True
+        set_carrito()
+    categorias=list(mongo.db.categorias.find())
+    productos=mongo.db.articulos
+    articulos=list(productos.find({}))
+
+    car = mongo.db.carrito
+    carrito = list(car.find({}))
+
+    return render_template('cart.html', ccarrito=carrito, cant=len(carrito), categorias=categorias, articulos=articulos, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -60,7 +60,7 @@
                         {% if not carro %}
                         <li class="shopcart"><a class="cartbox_active" href="#"><span class="product_qun">0</span></a>
                         {% else %}
-                        <li class="shopcart"><a class="cartbox_active" href="#"><span class="product_qun">{{n_carro}}</span></a>
+                        <li class="shopcart"><a class="cartbox_active" href="#"><span class="product_qun">{{carro}}</span></a>
                         {% endif %}
                         <!-- Start Shopping Cart -->
                         <div class="block-minicart minicart__active">
@@ -85,11 +85,11 @@
                                     {% endif %}
                                 </div>
                                 <div class="single__items">
-                                    {% for el in carro %}
+                                    {% for el in carrito %}
                                         <div class="miniproduct">
                                             <div class="item01 d-flex">
                                                 <div class="thumb">
-                                                    <a href="{{ el['nombre']}}"><img src="images/articulos/{{el['nombre']}}1.jpg" alt="product images"></a>
+                                                    <a href="{{ el['nombre']}}"><img src="/static/styles/images/articulos/{{el['nombre']}}1.jpg" alt="product images"></a>
                                                 </div>
                                                 <div class="content">
                                                     <h6><a href="{{ el['nombre']}}">{{ el['nombre'] }}</a></h6>
@@ -131,9 +131,9 @@
                                             <div class="switcher-currency-trigger">
                                                 <div class="setting__menu">
                                                 {% if (logueado) %}
-                                                    <span><a href="Cuenta">Mi cuenta</a></span>
+                                                    <span><a href="login">Ingresar</a></span>
                                                     <span><a href="Ordenes">Mis Ordenes</a></span>
-                                                    <span><a href="LogOut">Salir</a></span>
+                                                    <span><a href="logout">Salir</a></span>
                                                 {% else %}
                                                     <span><a href="/login">Iniciar Sesion</a></span>
                                                     <span><a href="/register">Crear una Cuenta</a></span>

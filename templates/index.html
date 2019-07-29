@@ -87,12 +87,13 @@
 
                 <div class="tab__container mt--60">
                     <!-- Start Single Tab Content -->
-                        <div class="product__indicator--4 arrows_style owl-carousel owl-theme">
+					
+					<div class="row single__tab tab-pane fade show active" id="nav-todas" role="tabpanel">
+						
                         {% for articulo in articulos %}
-                                    <div class="single__product">
-
-                                <!-- Start Single Product -->
-                                <div class="product product__style--3 col-lg-4 col-md-4 col-sm-6 col-12">
+                            
+								<div class="col-lg-3 col-md-4 col-sm-6 col-12">
+									<div class="product product__style--3">
                                         <div class="product__thumb">
                                             <a class="first__img" href="/producto/{{ articulo['nombre'] }}"><img src="/static/styles/images/articulos/{{articulo['nombre']}}1.jpg" alt="product image" height="270" width="340"></a>
                                             <a class="second__img" href="/producto/{{ articulo['nombre'] }}"><img src="/static/styles/images/articulos/{{articulo['nombre']}}2.jpg" alt="product image" height="270" width="340"></a>
@@ -104,23 +105,17 @@
                                             <h4><a href="/producto/{{articulo['nombre']}}">{{ articulo['nombre'] }}</a></h4>
                                             <ul class="prize d-flex">
                                                 <li>{{ "%.2f" %(articulo['precio']) }}</li>
-                                                <!--<li class="old_prize">$35.00</li> -->
                                             </ul>
-                                            <!--<div class="action">
-                                                <div class="actions_inner">
-                                                    <ul class="add_to_links">
-                                                        <li><a data-toggle="modal" title="Quick View" class="quickview modal-view detail-link" href="#productmodal"><i class="bi bi-search"></i></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div> -->
                                         </div>
-                                </div>
-                        {% endfor %}
-                        </div>
-                    </div>
-                    </div>
+									</div>
+								</div>
+							
+                        {% endfor %}    
+											
+					</div>
+					
+				</div>
                     <!-- End Single Tab Content -->
-                </div>
             </div>
         </section>
         <!-- QUICKVIEW PRODUCT -->
