@@ -94,7 +94,7 @@
                                             <td class="product-price"><span class="amount">$ {{ item.precio }}</span></td>
                                             <td class="product-quantity"><input type="number" name="cantidad" value="{{ item.cantidad }}" min="1"></td>
                                             <td class="product-subtotal">$ {{ item.precio * item.cantidad }}</td>
-                                            <td class="product-remove"><a href="EliminardelCarrito?articulo={{item.nombre}}" onclick="eliminarBotonX('{{i}}')" name="remover" >X</a>
+                                            <td class="product-remove"><a href="eliminar/{{item.nombre}}" onclick="eliminarBotonX('{{i}}')" name="remover" >X</a>
                                             </td>
                                         </tr>
                                         {% endfor %}

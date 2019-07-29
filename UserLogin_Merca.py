@@ -33,6 +33,12 @@ def set_carrito():
         app.mi_carro=list(carro.find({'correo': session['username']}))
         app.n_carrito=len(app.mi_carro)
 
+def del_carrito(product):
+    if 'username' in session:
+        temp = mongo.db.carrito
+        temp.remove({'correo': session['username'], 'nombre': product})
+
+
 def set_ordenes():
     orden= mongo.db.ordenes
     mis_ordenes=list(orden.find({'correo': session['username']}))
@@ -75,6 +81,17 @@ def logout():
     articulos=list(productos.find({}))
 
     return render_template('index.html', categorias=categorias, articulos=articulos, logueado=logueado)
+
+@app.route('/contacto')
+def contacto():
+    if 'username' in session:
+        logueado = True
+        set_carrito()
+    categorias = list(mongo.db.categorias.find())
+    productos = mongo.db.articulos
+    articulos = list(productos.find({}))
+
+    return render_template('contacto.html', categorias=categorias, articulos=articulos, logueado=logueado, carrito=app.mi_carro, carro=app.n_carrito)
 
 @app.route('/login', methods=['POST','GET'])
 def login():
@@ -138,17 +155,37 @@ def single_product(articulo):
     productos=mongo.db.articulos
     catalogo_frutas = len(list(productos.find({'categoria':'Frutas'})))
     catalogo_verduras = len(list(productos.find({'categoria':'Verduras'})))
+
+    categorias=list(mongo.db.categorias.find())
+    articulos=list(productos.find({}))
     
     display=productos.find_one({'nombre': articulo})
     print(catalogo_frutas, catalogo_verduras, display)
 
-    return render_template('single-product.html', articulo=articulo, display=display , n_frutas=catalogo_frutas, n_verduras=catalogo_verduras, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado)
+    return render_template('single-product.html', articulo=articulo, display=display , n_frutas=catalogo_frutas, n_verduras=catalogo_verduras, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado, categorias=categorias, articulos=articulos,)
 
 @app.route('/cart/')
 def carrito():
     if 'username' in session:
         logueado=True
         set_carrito()
+    categorias=list(mongo.db.categorias.find())
+    productos=mongo.db.articulos
+    articulos=list(productos.find({}))
+
+    car = mongo.db.carrito
+    carrito = list(car.find({}))
+
+    return render_template('cart.html', ccarrito=carrito, cant=len(carrito), categorias=categorias, articulos=articulos, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado)
+
+
+@app.route('/eliminar/<articulo>')
+def eliminarcarrito(articulo):
+    if 'username' in session:
+        logueado=True
+        del_carrito(articulo)
+        set_carrito()
+
     categorias=list(mongo.db.categorias.find())
     productos=mongo.db.articulos
     articulos=list(productos.find({}))
