@@ -83,17 +83,13 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% set subtotal = [0] %}
-                                        {% set i = -1 %}
                                         {% for item in ccarrito %}
-                                            {% set i=i+1 %}
-                                            {% set _ = subtotal.append(subtotal.pop() + (item.cantidad|int * item.precio|float))  %}
                                         <tr>
                                             <td class="product-thumbnail"><a href="producto/{{item.nombre}}"><img src="/static/styles/images/articulos/{{item.nombre}}1.jpg" class="img-responsive" alt="product image" height="200" width="380" /></a></td>
                                             <td class="product-name"><a href="producto/{{ item.nombre }}">{{ item.nombre }}</a></td>
-                                            <td class="product-price"><span class="amount">$ {{ item.precio }}</span></td>
+                                            <td class="product-price"><span class="amount"> {{ item['precio'] }}</span></td>
                                             <td class="product-quantity"><input type="number" name="cantidad" value="{{ item.cantidad }}" min="1"></td>
-                                            <td class="product-subtotal">$ {{ item.precio * item.cantidad }}</td>
+                                            <td class="product-subtotal">{{ "%.2f" % (item['precio'] * item['cantidad']) }} </td>
                                             <td class="product-remove"><a href="eliminar/{{item.nombre}}" onclick="eliminarBotonX('{{i}}')" name="remover" >X</a>
                                             </td>
                                         </tr>
@@ -126,13 +122,13 @@
                                     <li>Delivery</li>
                                 </ul>
                                 <ul class="cart__total__tk">
-                                    <li>$ {{ subtotal[0] }}</li>
-                                    <li>$ 4.50</li>
+                                    <li>{{ "%.2f" % sub }}</li>
+                                    <li> 4.50</li>
                                 </ul>
                             </div>
                             <div class="cart__total__amount">
                                 <span>Total a Pagar</span>
-                                <span>$ {{ subtotal[0] + 4.50 }}</span>
+                                <span> {{ "%.2f" % (sub + 4.50) }} </span>
                             </div>
                         </div>
                     </div>
