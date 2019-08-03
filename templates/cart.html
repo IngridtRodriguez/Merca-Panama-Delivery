@@ -90,7 +90,7 @@
                                             <td class="product-price"><span class="amount"> {{ item['precio'] }}</span></td>
                                             <td class="product-quantity"><input type="number" name="cantidad" value="{{ item.cantidad }}" min="1"></td>
                                             <td class="product-subtotal">{{ "%.2f" % (item['precio'] * item['cantidad']) }} </td>
-                                            <td class="product-remove"><a href="{{url_for('shop_grid')}}" onclick="eliminarBotonX('{{i}}')" name="remover" >X</a>
+                                            <td class="product-remove"><a href="eliminar/{{item.nombre}}" onclick="eliminarBotonX('{{i}}')" name="remover" >X</a>
                                             </td>
                                         </tr>
                                         {% endfor %}
@@ -104,7 +104,7 @@
 
                                {% else %}
                                 <li></li>
-                                <li><a href="checkout">Tramitar Pedido</a></li>
+                                <li><a href="{{url_for('checkout')}}">Tramitar Pedido</a></li>
                                {% endif %}
                             </ul>
                         </div>
@@ -122,13 +122,13 @@
                                     <li>Delivery</li>
                                 </ul>
                                 <ul class="cart__total__tk">
-                                    <li>$ {{ "%.2f" % sub }}</li>
-                                    <li>$ 4.50</li>
+                                    <li>{{ "%.2f" % sub }}</li>
+                                    <li> 4.50</li>
                                 </ul>
                             </div>
                             <div class="cart__total__amount">
                                 <span>Total a Pagar</span>
-                                <span> {{ "%.2f" % (sub + deli) }} </span>
+                                <span> {{ "%.2f" % (sub + 4.50) }} </span>
                             </div>
                         </div>
                     </div>
@@ -140,16 +140,6 @@
     <!-- //Main wrapper -->
 
     <script>
-        window.onload = ocultarSpinner();
-
-        function ocultarSpinner() {
-            for(var Posicion=0;Posicion<=<%= i %>;Posicion++){
-                var x = document.getElementsByName("spinner")[Posicion];
-                var y = document.getElementsByName("spinner_remover")[Posicion];
-                x.style.display = "none";
-                y.style.display = "none";
-            }
-        }
         function Redirect(Nombre,Posicion){
             mostrarSpinner(Posicion);
             var cantidad = document.getElementsByName("cantidad")[Posicion].value;
@@ -180,7 +170,7 @@
                                 <div class="footer__widget footer__menu">
                                     <div class="ft__logo">
                                         <a href="index.html">
-                                            <img src="images/logo/MercaDeliveryTransparente.png" alt="logo">
+                                            <img src="/static/styles/images/logo/MercaDeliveryTransparente.png" alt="logo">
                                         </a>
                                         <p>Redes Sociales: </p>
                                     </div>
@@ -192,9 +182,9 @@
                                         </ul>
                                         <ul class="mainmenu d-flex justify-content-center">
 
-                                            <li><a href="index.html">Todos los Productos</a></li>
+                                            <li><a href="{{url_for('index')}}">Todos los Productos</a></li>
 
-                                            <li><a href="contact.html">Contacto</a></li>
+                                            <li><a href="{{url_for('about')}}">Contacto</a></li>
                                         </ul>
                                     </div>
                                 </div>

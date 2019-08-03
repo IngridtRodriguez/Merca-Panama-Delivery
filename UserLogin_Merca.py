@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Jul 22 07:55:50 2019
-
-@author: ingri
-"""
 
 from flask import Flask, flash, request, session, redirect, render_template, url_for
 from flask_pymongo import PyMongo
 
 app = Flask(__name__)
 
+
 app.config['SECRET_KEY']='secretkey'
+
+#Configurando la base de datos con la que se conecta
 app.config['MONGO_DBNAME'] = 'MercaDelivery'
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/MercaDelivery'
 
 mongo = PyMongo(app)
+
 logueado=False
 mi_carro=[]
 mis_ordenes=[]
@@ -23,26 +22,39 @@ cantidad_pedidos=0
 subtotal=0
 categories=[]
 
+#Para obtener las categorias en la base de datos
 def set_categorias():
     categ=mongo.db.categorias
     categories= list(categ.find({}))
 
+#Para obtener el carrito del usuario en la base de datos, si es que hay una sesión abierta
 def set_carrito():
     if 'username' in session:
         carro = mongo.db.carrito
         app.mi_carro=list(carro.find({'correo': session['username']}))
         app.n_carrito=len(app.mi_carro)
 
+#Para borrar producto del carrito
+def del_carrito(product):
+    if 'username' in session:
+        temp = mongo.db.carrito
+        temp.remove({'correo': session['username'], 'nombre': product})
+
+#Obtiene las ordenes del usuario (No ha sido implementado)
 def set_ordenes():
     orden= mongo.db.ordenes
     mis_ordenes=list(orden.find({'correo': session['username']}))
 
     cantidad_pedidos=0
-    #Esto es para saber la cantidad de pedidos que tiene
+    '''Esto es para saber la cantidad de pedidos que tiene el usuario
+        En la base de datos, los ordenes se registran por artículo comprado
+        Si una orden tiene multiples frutos o verduras, cada documento o "fila" tiene el mismo número de orden
+    '''
     for ordenes in mis_ordenes:
         if cantidad_pedidos < ordenes['numero']:
             cantidad_pedidos = ordenes['numero']
 
+#Obtener el subtotal a pagar, si es que hay una sesión abierta
 def set_subtotal():
     if 'username' in session:
         for elemento in mi_carro:
@@ -50,23 +62,36 @@ def set_subtotal():
             cantidad= elemento['cantidad']
             subtotal = subtotal + (precio*cantidad)
 
-#Pasa el carrito y las ordenes de la persona logueada a todas las paginas
+#Pasa el subtotal (con un formato) de la persona logueada a todas las paginas
+#Esto es fundamental para el caso del header.html, ya que el header tiene el icono de carrito
+#Header.html se repite en todas las páginas, asi solo se programa un vez y solo es incluido en otro html (por ejemplo, index)
 @app.context_processor
 def para_todos():
-    return dict(logueado=logueado, carro=mi_carro, n_carro=n_carrito, orden=mis_ordenes, n_ordenes=cantidad_pedidos, categorias=categories, subtotal=subtotal)
+    def get_subtotal(carrito):
+        if 'username' in session:
+            subtotal=0
+            for elemento in carrito:
+                precio = elemento['precio']
+                cantidad= elemento['cantidad']
+                subtotal = subtotal + (precio*cantidad)
+            return '{0:.2f}'.format(subtotal)
+    return {'get_subtotal': get_subtotal}
 
+#######COMENZANDO A ASIGNAR LAS RUTAS#########
+
+#La pagina principal, se entra a ella escribiendo la ruta localhost/
 @app.route('/')
 def index():
+    #si hay un username en la variable sesión
     if 'username' in session:
         logueado=True
         set_carrito()
-        set_subtotal()
+    #Aunque no haya user logueado, se muestra las categorias y se cargan en las opciones
     categorias=list(mongo.db.categorias.find())
     productos=mongo.db.articulos
     articulos=list(productos.find({}))
 
-    return render_template('index.html', categorias=categorias, articulos=articulos, logueado=logueado, carrito=app.mi_carro, n_carro=app.n_carrito, subtotal=subtotal)
-
+    return render_template('index.html', categorias=categorias, articulos=articulos, logueado=logueado, carrito=app.mi_carro, n_carro=app.n_carrito)
 
 @app.route('/logout')
 def logout():
@@ -77,50 +102,70 @@ def logout():
 
     return render_template('index.html', categorias=categorias, articulos=articulos, logueado=logueado)
 
+#Ruta de contacto. Se entra en ella poniendo en url localhost/contacto
+@app.route('/contacto')
+def about():
+    if 'username' in session:
+        logueado = True
+        set_carrito()
+    categorias = list(mongo.db.categorias.find())
+    productos = mongo.db.articulos
+    articulos = list(productos.find({}))
+
+    return render_template('contacto.html', categorias=categorias, articulos=articulos, logueado=logueado, carrito=app.mi_carro, n_carro=app.n_carrito)
+
+#Ruta para el inicio de sesión. Se ingresa a ella con localhost/login
+#Se especifica los métodos utilizados ya que aquí se obtendrá datos si se presiona un submit
 @app.route('/login', methods=['POST','GET'])
 def login():
+    #Mensaje de error que se pasará al html y será manejado con Jinja
     error=None
+    #Base de datos, collection o tabla usuarios 
     correos = mongo.db.usuarios
-    if request.method == 'POST':
-        login_user = correos.find_one({'correo' : request.form['email']})
-        print(login_user)
 
+    if request.method == 'POST':
+        #Buscando el usuario con el correo que se metió en el input llamado email
+        login_user = correos.find_one({'correo' : request.form['email']})
+
+        #De existir el usuario se compara la contraseña de él con la contraseña en input llamado pass
         if login_user:
             if request.form['pass'].encode('utf-8') == login_user['password'].encode('utf-8'):
                 session['username'] = request.form['email']
                 return redirect(url_for('index'))
+        #Si no se encontró al usuario se muestra un error en el html
         else:
             error="Datos erroneos"
     return render_template('login.html', error=error)
 
+#Ruta para el registro, se entra a ella con localhost/register
+#Maneja entrada de datos, se especifica método POST
 @app.route('/register', methods=['POST', 'GET'])
 def registrar():
     error=None #Esto es para tirar el error de que ya existe usuario que sale en el html (linea 212)
     if request.method == 'POST':
+        #Si se presiona el botón registrarse dentro de un form verifico si el usuario ya tiene cuenta
         if request.form['registrarse'] == 'Registrarse':
             usuarios = mongo.db.usuarios
-            existing_user = usuarios.find_one({'correo' : request.form['email']}) #buscando si usuario ya está
+            existing_user = usuarios.find_one({'correo' : request.form['email']})
             print(existing_user)
 
             if existing_user:
                 error="Esta cuenta ya existe "
+            #El usuario no existe todavia, se inserta a la base de datos
             elif existing_user is None: 
                 usuarios.insert({'correo' : request.form['email'], 'password' : request.form['pass'],'tipo':'cliente'})
                 #session['username'] = request.form['username']
                 return redirect(url_for('index'))
+        #En se presiona el botón de login, se redirige a la ruta login
         elif 'ingresa' in request.form:
-            print("estoy en boton ingresar")
             return redirect(url_for(login))
     return render_template('register.html', error=error)
 
-@app.route('/about')
-def about():
-    return render_template('contacto.html')
-
+#Ruta para catalogo, se ingresa a ella con localhost/shop-grid/. Por default abre las frutas
+#@app.route('/shop-grid/<categoria_en_seleccion>') se refiere a que la ruta puede cambiar dependiendo de que categoria escogo
 @app.route('/shop-grid', defaults={'categoria_en_seleccion':'Frutas'})
 @app.route('/shop-grid/<categoria_en_seleccion>')
 def shop_grid(categoria_en_seleccion):
-    #catalogo_en_seleccion=
     catalogo = []
     productos=mongo.db.articulos
     categorias=list(mongo.db.categorias.find())
@@ -129,62 +174,89 @@ def shop_grid(categoria_en_seleccion):
     catalogo = list(productos.find({})) 
 
     #Pasando la lista manejo la carga de los productos desde el html (Linea 230)
-    return render_template('shop-grid.html', catalogo=catalogo, categorias=categorias,categoria_en_seleccion=categoria_en_seleccion, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado)
+    return render_template('shop-grid.html', catalogo=catalogo, categorias=categorias,categoria_en_seleccion=categoria_en_seleccion, carrito=app.mi_carro, n_carro=app.n_carrito, logueado=logueado)
 
+#Ruta de los productos. Se ingresa a ella con localhost/producto/Piña o localhost/producto/Naranja u otro
+#<articulo> se pasa desde el shop-grid donde se le dé click a un producto
 @app.route('/producto/<articulo>', methods=['POST', 'GET'])
 def single_product(articulo):
     if 'username' in session:
         logueado = True
         set_carrito()
-    productos=mongo.db.articulos
-    catalogo_frutas = len(list(productos.find({'categoria':'Frutas'})))
-    catalogo_verduras = len(list(productos.find({'categoria':'Verduras'})))
-    mensaje=None
-    display=productos.find_one({'nombre': articulo})
-    print(catalogo_frutas, catalogo_verduras, display)
+    productos = mongo.db.articulos
+    catalogo_frutas = len(list(productos.find({'categoria': 'Frutas'})))
+    catalogo_verduras = len(list(productos.find({'categoria': 'Verduras'})))
+    mensaje = None
+    display = productos.find_one({'nombre': articulo}) #Aqui busco detalles del producto escogido en mongodb
 
     if request.method == 'POST':
+        #Si se presiona boton añadir al carrito entonces se agrega al carrito del usuario en sesión y la cantidad que especifica en el input qty
         if request.form['anadir'] == "Añadir al carrito":
-            carrito=mongo.db.carrito
-            carrito.insert({'correo' : session['username'], 'nombre' : articulo,'cantidad': int(request.form['qty']) ,'precio':display['precio']})
-            mensaje="Ya fue agregado al carrito"
+            carrito = mongo.db.carrito
+            carrito.insert({'correo': session['username'], 'nombre': articulo, 'cantidad': int(request.form['qty']),
+                            'precio': display['precio']})
+            mensaje = "Ya fue agregado al carrito"
 
-    return render_template('single-product.html', articulo=articulo, display=display , n_frutas=catalogo_frutas, n_verduras=catalogo_verduras, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado,mensaje=mensaje)
+    return render_template('single-product.html', articulo=articulo, display=display, n_frutas=catalogo_frutas, n_verduras=catalogo_verduras, carrito=app.mi_carro, n_carro=app.n_carrito, logueado=logueado, mensaje=mensaje)
 
+#Ruta para el carrito. se entra a ella con localhost/cart
 @app.route('/cart/')
 def carrito():
     if 'username' in session:
         logueado=True
-        set_carrito()
     categorias=list(mongo.db.categorias.find())
     productos=mongo.db.articulos
     articulos=list(productos.find({}))
     subtotal=0
     delivery=4.50
     car = mongo.db.carrito
-    carrito = list(car.find({'correo':session['username']}))
+    carrito = list(car.find({'correo':session['username']})) #Trayendo el carrito del usuario
 
     for item in carrito:
         subtotal= subtotal + float(item['precio']) * int(item['cantidad'])
 
-    return render_template('cart.html', ccarrito=carrito, cant=len(carrito), categorias=categorias, articulos=articulos, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado, sub=subtotal, deli=delivery)
+    return render_template('cart.html', ccarrito=carrito, cant=len(carrito), categorias=categorias, articulos=articulos, carrito=app.mi_carro, n_carro=app.n_carrito, logueado=logueado, sub=subtotal, deli=delivery)
 
-@app.route('/pago')
+@app.route('/pago', methods=['POST','GET'])
 def checkout():
     direccion_agregada=None
     usuarios = mongo.db.usuarios
     existing_user = usuarios.find_one({'correo' : session['username']})
     sub=0
-
     car = mongo.db.carrito
     carrito = list(car.find({'correo':session['username']}))
 
     for item in carrito:
         sub= sub + float(item['precio']) * int(item['cantidad'])
+    pago=None
+    if request.method == 'POST':
+        if 'guardar' in request.form:
+            mongo.db.usuarios.update({'correo':session['username']},{"$set":{'nombre':request.form['Nombre'],'apellido':request.form['Apellido'], 'direccion':request.form['Direccion'], 'barriada':request.form['Barriada'] , 'telefono':request.form['Telefono']}})
+            direccion_agregada=True
+            return redirect(url_for('checkout'))
+        elif 'pagar' in request.form:
+            for item in carrito:
+                articulo=mongo.db.articulos.find_one({'nombre':item['nombre']})
+                mongo.db.articulos.update({'nombre':item['nombre']},{"$set":{'cantidad': (articulo['cantidad'] - item['cantidad']) }})
+            mongo.db.carrito.remove({'correo':session['username']})
+            pago=True
+    return render_template('checkout.html', usuario=existing_user, subtotal=sub, carrito=carrito, pago=pago)
 
-    if existing_user['direccion'] is not '':
-        direccion_agregada=True
-    return render_template('checkout.html', usuario=existing_user, subtotal=sub, carrito=carrito)
+@app.route('/eliminar/<articulo>')
+def eliminarcarrito(articulo):
+    if 'username' in session:
+        logueado=True
+        del_carrito(articulo)
+
+    categorias=list(mongo.db.categorias.find())
+    productos=mongo.db.articulos
+    articulos=list(productos.find({}))
+    subtotal=0
+    car = mongo.db.carrito
+    carrito = list(car.find({'correo':session['username']}))
+    for item in carrito:
+        subtotal= subtotal + float(item['precio']) * int(item['cantidad'])
+    return render_template('cart.html', ccarrito=carrito, cant=len(carrito), categorias=categorias, articulos=articulos, carrito=app.mi_carro, n_carro=app.n_carrito, logueado=logueado, sub=subtotal)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -73,7 +73,7 @@
                         </div>
                         {% endif %}
                             <h3>Detalles de envio</h3>
-                            <form action="pago" method="POST" id= "form">
+                            <form action="{{ url_for('checkout') }}" method="POST">
         					<div class="customar__field">
         						<div class="margin_between">
 	        						<div class="input_box space_between">
@@ -103,11 +103,10 @@
 										<label>Correo electronico  <span>*</span></label>
 										<input type="email" name="correo" value ="{{ usuario['correo'] }}"required>
 									</div>
-								</div>
-                                <button type="button" class="btn btn-success btn-block" onclick="Enviar()" id="boton_enviar" >Guardar</button>
-                                <button class="btn btn-success btn-block" id="spinner">
-                                    <span class="spinner-border spinner-border-sm"></span>
-                                </button>
+                                </div>
+
+                                    <input type="submit" name="guardar" class="btn btn-success btn-block" value="Guardar">
+
         					</div>
         				</div>
         			</div>
@@ -139,23 +138,18 @@
                                 <div class="che__header" role="tab" id="headingFour">
                                         <span align="center">
                                             <div class="payment-body">
-                                            {% if usuario['direccion'] != '' %}
-                                        <form action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post" target="_top" id="PayPal">
-                                            <input type="hidden" name="cmd" value="_xclick">
-                                            <input type="hidden" name="business" value="2R3DSAXHHMBQA">
-                                            <input type="hidden" name="lc" value="US">
-                                            <input type="hidden" name="item_name" value="MercaDelivery">
-                                            <input type="hidden" name="amount" value="<%= (subtotal+4.50).toFixed(2) %>">
-                                            <input type="hidden" name="currency_code" value="USD">
-                                            <input type="hidden" name="button_subtype" value="services">
-                                            <input type="hidden" name="no_note" value="0">
-                                            <input type="hidden" name="cn" value="Add special instructions to the seller:">
-                                            <input type="hidden" name="no_shipping" value="2">
-                                            <input type="hidden" name="rm" value="1">
-                                            <input type="hidden" name="return" value="http://localhost:3000/Comprando">
-                                            <input type="hidden" name="bn" value="PP-BuyNowBF:btn_paynowCC_LG.gif:NonHosted">
-                                            <input type="image" src="https://www.sandbox.paypal.com/es_XC/i/btn/btn_paynowCC_LG.gif" border="0" name="submit" alt="PayPal, la forma más segura y rápida de pagar en línea.">
-                                            <img alt="" border="0" src="https://www.sandbox.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+                                            {% if pago  %}
+                                            <br>
+                                            <div class="alert alert-success">
+                                            <strong>Exito!</strong> Su pago ha sido procesado
+                                            </div>
+                                            {% endif %}
+                                        {% if usuario['direccion'] != '' %}
+                                        <form action="{{ url_for('checkout') }}" method="POST">
+                                            
+                                            <button type="submit" name="pagar">
+                                            <img src="/static/styles/images/checkout/pagarahora.gif" border="0" alt="PayPal, la forma más segura y rápida de pagar en línea.">    
+                                            </button>
                                         </form>
                                         {% endif %}
                                     </div>
@@ -181,16 +175,6 @@
             var x = document.getElementById("spinner");
             x.style.display = "none";
         }
-
-        function Enviar(){
-            var x = document.getElementById("spinner");
-            x.style.display = "block";
-            var y = document.getElementById("boton_enviar");
-            y.style.display = "none";
-            document.getElementById("form").submit();
-        }
-
-
 
       // Note: This example requires that you consent to location sharing when
       // prompted by your browser. If you see the error "The Geolocation service

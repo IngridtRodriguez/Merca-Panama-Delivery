@@ -57,7 +57,7 @@
                                 </li>
                             </div>
                     {% else %}
-                        {% if not carro %}
+                        {% if not carrito %}
                         <li class="shopcart"><a class="cartbox_active" href="#"><span class="product_qun">0</span></a>
                         {% else %}
                         <li class="shopcart"><a class="cartbox_active" href="#"><span class="product_qun">{{ n_carro }}</span></a>
@@ -74,7 +74,7 @@
                                 </div>
                                 <div class="total_amount text-right">
                                     <span>
-                                        {{ subtotal }}
+                                        {{ get_subtotal(carrito) }}
                                     </span>
                                 </div>
                                 <div class="mini_action checkout">
@@ -104,12 +104,15 @@
                                                 </div>
                                             </div>
                                         </div>  
-                                    {% endfor %} 
-                                    {% if carrito %}
+                                    {% endfor %}
                                     <div class="mini_action cart">
+                                    {% if carrito %}
+                                        <a class="cart__btn" href="cart">Ver y Editar Carrito</a>
+                                    {% else %}
                                         <a class="cart__btn" href="{{url_for('carrito')}}">Ver y Editar Carrito</a>
-                                    </div>
                                     {% endif %}
+                                    </div>
+
                             {% endif %}
                             </div>
                         </div>

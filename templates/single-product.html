@@ -6,7 +6,7 @@
         <title>Producto</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
+        <base href="http://127.0.0.1:5000/">
         <!-- Favicons -->
         <link rel="shortcut icon" href="/static/styles/images/icons/cartIcon.png">
         <link rel="apple-touch-icon" href="/static/styles/images/icon.png">
@@ -105,7 +105,11 @@
                                                 <input id="qty" class="input-text qty" name="qty" min="1" value="1" title="Qty" type="number">
                                                 
                                                 <div class="addtocart__actions">
+                                                    {% if display['cantidad'] == 0 %}
+                                                            <button class="tocart" type="submit" title="No disponible" disabled>Agotado</button>
+                                                    {% else %}
                                                     <input type="submit" class="tocart" name="anadir" value="Añadir al carrito" title="Add to Cart" href="{{url_for('carrito')}}"></button>
+                                                {% endif %}
                                                 </div>
                                             </div>
                                             </form>
