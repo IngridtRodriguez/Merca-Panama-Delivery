@@ -60,11 +60,12 @@ def index():
     if 'username' in session:
         logueado=True
         set_carrito()
+        set_subtotal()
     categorias=list(mongo.db.categorias.find())
     productos=mongo.db.articulos
     articulos=list(productos.find({}))
 
-    return render_template('index.html', categorias=categorias, articulos=articulos, logueado=logueado, carrito=app.mi_carro, carro=app.n_carrito)
+    return render_template('index.html', categorias=categorias, articulos=articulos, logueado=logueado, carrito=app.mi_carro, n_carro=app.n_carrito, subtotal=subtotal)
 
 
 @app.route('/logout')
@@ -167,6 +168,23 @@ def carrito():
         subtotal= subtotal + float(item['precio']) * int(item['cantidad'])
 
     return render_template('cart.html', ccarrito=carrito, cant=len(carrito), categorias=categorias, articulos=articulos, carrito=app.mi_carro, carro=app.n_carrito, logueado=logueado, sub=subtotal, deli=delivery)
+
+@app.route('/pago')
+def checkout():
+    direccion_agregada=None
+    usuarios = mongo.db.usuarios
+    existing_user = usuarios.find_one({'correo' : session['username']})
+    sub=0
+
+    car = mongo.db.carrito
+    carrito = list(car.find({'correo':session['username']}))
+
+    for item in carrito:
+        sub= sub + float(item['precio']) * int(item['cantidad'])
+
+    if existing_user['direccion'] is not '':
+        direccion_agregada=True
+    return render_template('checkout.html', usuario=existing_user, subtotal=sub, carrito=carrito)
 
 if __name__ == '__main__':
     app.run(debug=True)

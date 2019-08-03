@@ -60,7 +60,7 @@
                         {% if not carro %}
                         <li class="shopcart"><a class="cartbox_active" href="#"><span class="product_qun">0</span></a>
                         {% else %}
-                        <li class="shopcart"><a class="cartbox_active" href="#"><span class="product_qun">{{carro}}</span></a>
+                        <li class="shopcart"><a class="cartbox_active" href="#"><span class="product_qun">{{ n_carro }}</span></a>
                         {% endif %}
                         <!-- Start Shopping Cart -->
                         <div class="block-minicart minicart__active">
@@ -74,12 +74,12 @@
                                 </div>
                                 <div class="total_amount text-right">
                                     <span>
-                                        {{subtotal}}
+                                        {{ subtotal }}
                                     </span>
                                 </div>
                                 <div class="mini_action checkout">
                                     {% if carrito %}
-                                    <a class="checkout__btn" href="checkout">Ir al Pago</a> 
+                                    <a class="checkout__btn" href="{{url_for('checkout')}}">Ir al Pago</a> 
                                         {%  else %}
                                         <a class="checkout__btn" disabled>Tu canasta esta vacia!</a> 
                                     {% endif %}
