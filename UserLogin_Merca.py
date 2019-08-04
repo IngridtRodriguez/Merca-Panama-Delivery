@@ -62,12 +62,26 @@ def set_subtotal():
             cantidad= elemento['cantidad']
             subtotal = subtotal + (precio*cantidad)
 
-#Pasa el subtotal (con un formato) de la persona logueada a todas las paginas
-#Esto es fundamental para el caso del header.html, ya que el header tiene el icono de carrito
-#Header.html se repite en todas las páginas, asi solo se programa un vez y solo es incluido en otro html (por ejemplo, index)
+
 @app.context_processor
 def para_todos():
+    """
+    Esta función se encarga de inyectar variables automaticamente en el contexto de los templates (html's).
+    Pasa el subtotal (con un formato) de la persona logueada a todas las paginas
+    Esto es fundamental para el caso del header.html, ya que el header tiene el icono de carrito
+    Header.html se repite en todas las páginas, asi solo se programa un vez y solo es incluido en otro html (por ejemplo, index)
+    """
     def get_subtotal(carrito):
+        """
+        El context processor get_subtotal hace que la variable llamada get_subtotal esté disponible en todos los templates.
+        Además, lo pasa en un cierto formato (de dos puntos decimales). Desde un template se pasará de la siguiente forma:
+        {{get_subtotal(carrito)}}
+
+        :param carrito: Diccionario que se recupera de la base de datos con datos del carrito del usuario en sesión actualmente.
+        
+        :return: get_subtotal
+        """
+
         if 'username' in session:
             subtotal=0
             for elemento in carrito:
@@ -79,9 +93,14 @@ def para_todos():
 
 #######COMENZANDO A ASIGNAR LAS RUTAS#########
 
-#La pagina principal, se entra a ella escribiendo la ruta localhost/
 @app.route('/')
 def index():
+    """
+    Ruta de la pagina principal, se ingresa a ella escribiendo la ruta localhost/
+    
+    :return: template index.html con todos los artículos en la base de datos
+    """
+
     #si hay un username en la variable sesión
     if 'username' in session:
         logueado=True
@@ -102,9 +121,14 @@ def logout():
 
     return render_template('index.html', categorias=categorias, articulos=articulos, logueado=logueado)
 
-#Ruta de contacto. Se entra en ella poniendo en url localhost/contacto
+
 @app.route('/contacto')
 def about():
+    """
+    Ruta de contacto. Se entra en ella poniendo en url localhost/contacto
+    
+    :return: template contacto.html
+    """
     if 'username' in session:
         logueado = True
         set_carrito()
@@ -114,10 +138,16 @@ def about():
 
     return render_template('contacto.html', categorias=categorias, articulos=articulos, logueado=logueado, carrito=app.mi_carro, n_carro=app.n_carrito)
 
-#Ruta para el inicio de sesión. Se ingresa a ella con localhost/login
-#Se especifica los métodos utilizados ya que aquí se obtendrá datos si se presiona un submit
 @app.route('/login', methods=['POST','GET'])
 def login():
+    """
+    Ruta para el inicio de sesión. Se ingresa a ella con localhost/login
+    Se especifica los métodos utilizados ya que aquí se obtendrá datos si se presiona un submit
+    La función login utiliza método POST para detectar los request a ingreso de datos. 
+    
+    :return: template login.html
+    :return: error
+    """
     #Mensaje de error que se pasará al html y será manejado con Jinja
     error=None
     #Base de datos, collection o tabla usuarios 
@@ -137,10 +167,15 @@ def login():
             error="Datos erroneos"
     return render_template('login.html', error=error)
 
-#Ruta para el registro, se entra a ella con localhost/register
-#Maneja entrada de datos, se especifica método POST
 @app.route('/register', methods=['POST', 'GET'])
 def registrar():
+    """
+    Ruta para el registro, se entra a ella con localhost/register
+    Maneja entrada de datos, se especifica método POST
+    
+    :return: template register.html
+    :return: error
+    """
     error=None #Esto es para tirar el error de que ya existe usuario que sale en el html (linea 212)
     if request.method == 'POST':
         #Si se presiona el botón registrarse dentro de un form verifico si el usuario ya tiene cuenta
@@ -161,11 +196,20 @@ def registrar():
             return redirect(url_for(login))
     return render_template('register.html', error=error)
 
-#Ruta para catalogo, se ingresa a ella con localhost/shop-grid/. Por default abre las frutas
-#@app.route('/shop-grid/<categoria_en_seleccion>') se refiere a que la ruta puede cambiar dependiendo de que categoria escogo
 @app.route('/shop-grid', defaults={'categoria_en_seleccion':'Frutas'})
 @app.route('/shop-grid/<categoria_en_seleccion>')
 def shop_grid(categoria_en_seleccion):
+    """
+    Ruta para catalogo, se ingresa a ella con localhost/shop-grid/. Por default abre las frutas
+    Utiliza URL converter, lo que da la capacidad de crear un URL dinámico. 
+    Es decir, se utiliza parte del URL como una variable de búsqueda de productos por categoría
+    Por default la categoría en selección son las Frutas.
+
+    :param categoria_en_seleccion: Variable Dinamica
+
+    :return: template shop-grid.html
+    :return: categoria_en_seleccion
+    """
     catalogo = []
     productos=mongo.db.articulos
     categorias=list(mongo.db.categorias.find())
@@ -176,10 +220,20 @@ def shop_grid(categoria_en_seleccion):
     #Pasando la lista manejo la carga de los productos desde el html (Linea 230)
     return render_template('shop-grid.html', catalogo=catalogo, categorias=categorias,categoria_en_seleccion=categoria_en_seleccion, carrito=app.mi_carro, n_carro=app.n_carrito, logueado=logueado)
 
-#Ruta de los productos. Se ingresa a ella con localhost/producto/Piña o localhost/producto/Naranja u otro
-#<articulo> se pasa desde el shop-grid donde se le dé click a un producto
 @app.route('/producto/<articulo>', methods=['POST', 'GET'])
 def single_product(articulo):
+    """
+    Ruta de los productos. Se ingresa a ella con localhost/producto/Piña o localhost/producto/Naranja o desde la página de catalogo
+    Justo como con el catalogo, utiliza URL converter para pasar URL como variables (En este caso, el artículo)
+    <articulo> se pasa desde el shop-grid donde se le dé click a un producto
+    
+    También utiliza método POST en caso de Añadir un producto al carrito
+    
+    :param articulo: Variable dinamica 
+    
+    :return: template single-product.html
+    :return: articulo
+    """
     if 'username' in session:
         logueado = True
         set_carrito()
@@ -199,9 +253,15 @@ def single_product(articulo):
 
     return render_template('single-product.html', articulo=articulo, display=display, n_frutas=catalogo_frutas, n_verduras=catalogo_verduras, carrito=app.mi_carro, n_carro=app.n_carrito, logueado=logueado, mensaje=mensaje)
 
-#Ruta para el carrito. se entra a ella con localhost/cart
 @app.route('/cart/')
 def carrito():
+    """
+    Ruta para el carrito. Se entra a ella con localhost/cart
+    Esta función se encarga de mostrar todos los artículos y cantidades guardadas en cierta sesión.
+    Desde esta página se lleva a la pagina de pago al presionar un botón de tramitar.
+
+    :return: template cart.html
+    """
     if 'username' in session:
         logueado=True
     categorias=list(mongo.db.categorias.find())
@@ -219,6 +279,14 @@ def carrito():
 
 @app.route('/pago', methods=['POST','GET'])
 def checkout():
+    """
+    Esta función se encarga del pago de la orden del carrito.
+    Tiene dos formularios: uno de actualización de datos y dirección de vivienda y otro de Pago
+    Al actualizar datos de la dirección de vivienda se abre el Collection usuarios y edita estos campos.
+    Al pagar la base de datos resta la cantidad de artículos disponibles en el Collection articulos y borra el carrito del usuario.
+
+    :return: template checkout.html
+    """
     direccion_agregada=None
     usuarios = mongo.db.usuarios
     existing_user = usuarios.find_one({'correo' : session['username']})
@@ -234,9 +302,13 @@ def checkout():
             mongo.db.usuarios.update({'correo':session['username']},{"$set":{'nombre':request.form['Nombre'],'apellido':request.form['Apellido'], 'direccion':request.form['Direccion'], 'barriada':request.form['Barriada'] , 'telefono':request.form['Telefono']}})
             direccion_agregada=True
             return redirect(url_for('checkout'))
+
+        #Si se presiona el botón pagar
         elif 'pagar' in request.form:
             for item in carrito:
                 articulo=mongo.db.articulos.find_one({'nombre':item['nombre']})
+                #Se actualiza la cantidad de articulos en la base de datos.
+                #se obtiene cantidad de productos y se resta la cantidad que se pidió en el carrito
                 mongo.db.articulos.update({'nombre':item['nombre']},{"$set":{'cantidad': (articulo['cantidad'] - item['cantidad']) }})
             mongo.db.carrito.remove({'correo':session['username']})
             pago=True
