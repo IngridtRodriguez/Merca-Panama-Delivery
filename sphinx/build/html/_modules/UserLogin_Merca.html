@@ -1,0 +1,440 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>UserLogin_Merca &#8212; documentación de sphinx documentation - 0.0.1</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="index" title="Índice" href="../genindex.html" />
+    <link rel="search" title="Búsqueda" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Código fuente para UserLogin_Merca</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">flash</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">render_template</span><span class="p">,</span> <span class="n">url_for</span>
+<span class="kn">from</span> <span class="nn">flask_pymongo</span> <span class="k">import</span> <span class="n">PyMongo</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SECRET_KEY&#39;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;secretkey&#39;</span>
+
+<span class="c1">#Configurando la base de datos con la que se conecta</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;MONGO_DBNAME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;MercaDelivery&#39;</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;MONGO_URI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;mongodb://localhost:27017/MercaDelivery&#39;</span>
+
+<span class="n">mongo</span> <span class="o">=</span> <span class="n">PyMongo</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="n">logueado</span><span class="o">=</span><span class="kc">False</span>
+<span class="n">mi_carro</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">mis_ordenes</span><span class="o">=</span><span class="p">[]</span>
+<span class="n">n_carrito</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">cantidad_pedidos</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">subtotal</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">categories</span><span class="o">=</span><span class="p">[]</span>
+
+<span class="c1">#Para obtener las categorias en la base de datos</span>
+<span class="k">def</span> <span class="nf">set_categorias</span><span class="p">():</span>
+    <span class="n">categ</span><span class="o">=</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">categorias</span>
+    <span class="n">categories</span><span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">categ</span><span class="o">.</span><span class="n">find</span><span class="p">({}))</span>
+
+<span class="c1">#Para obtener el carrito del usuario en la base de datos, si es que hay una sesión abierta</span>
+<span class="k">def</span> <span class="nf">set_carrito</span><span class="p">():</span>
+    <span class="k">if</span> <span class="s1">&#39;username&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">carro</span> <span class="o">=</span> <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">carrito</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">mi_carro</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">carro</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s1">&#39;correo&#39;</span><span class="p">:</span> <span class="n">session</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]}))</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">n_carrito</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">mi_carro</span><span class="p">)</span>
+
+<span class="c1">#Para borrar producto del carrito</span>
+<span class="k">def</span> <span class="nf">del_carrito</span><span class="p">(</span><span class="n">product</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;username&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">carrito</span>
+        <span class="n">temp</span><span class="o">.</span><span class="n">remove</span><span class="p">({</span><span class="s1">&#39;correo&#39;</span><span class="p">:</span> <span class="n">session</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">],</span> <span class="s1">&#39;nombre&#39;</span><span class="p">:</span> <span class="n">product</span><span class="p">})</span>
+
+<span class="c1">#Obtiene las ordenes del usuario (No ha sido implementado)</span>
+<span class="k">def</span> <span class="nf">set_ordenes</span><span class="p">():</span>
+    <span class="n">orden</span><span class="o">=</span> <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">ordenes</span>
+    <span class="n">mis_ordenes</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">orden</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s1">&#39;correo&#39;</span><span class="p">:</span> <span class="n">session</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]}))</span>
+
+    <span class="n">cantidad_pedidos</span><span class="o">=</span><span class="mi">0</span>
+    <span class="sd">&#39;&#39;&#39;Esto es para saber la cantidad de pedidos que tiene el usuario</span>
+<span class="sd">        En la base de datos, los ordenes se registran por artículo comprado</span>
+<span class="sd">        Si una orden tiene multiples frutos o verduras, cada documento o &quot;fila&quot; tiene el mismo número de orden</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">ordenes</span> <span class="ow">in</span> <span class="n">mis_ordenes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">cantidad_pedidos</span> <span class="o">&lt;</span> <span class="n">ordenes</span><span class="p">[</span><span class="s1">&#39;numero&#39;</span><span class="p">]:</span>
+            <span class="n">cantidad_pedidos</span> <span class="o">=</span> <span class="n">ordenes</span><span class="p">[</span><span class="s1">&#39;numero&#39;</span><span class="p">]</span>
+
+<span class="c1">#Obtener el subtotal a pagar, si es que hay una sesión abierta</span>
+<span class="k">def</span> <span class="nf">set_subtotal</span><span class="p">():</span>
+    <span class="k">if</span> <span class="s1">&#39;username&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">elemento</span> <span class="ow">in</span> <span class="n">mi_carro</span><span class="p">:</span>
+            <span class="n">precio</span> <span class="o">=</span> <span class="n">elemento</span><span class="p">[</span><span class="s1">&#39;precio&#39;</span><span class="p">]</span>
+            <span class="n">cantidad</span><span class="o">=</span> <span class="n">elemento</span><span class="p">[</span><span class="s1">&#39;cantidad&#39;</span><span class="p">]</span>
+            <span class="n">subtotal</span> <span class="o">=</span> <span class="n">subtotal</span> <span class="o">+</span> <span class="p">(</span><span class="n">precio</span><span class="o">*</span><span class="n">cantidad</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="para_todos"><a class="viewcode-back" href="../code.html#UserLogin_Merca.para_todos">[documentos]</a><span class="nd">@app</span><span class="o">.</span><span class="n">context_processor</span>
+<span class="k">def</span> <span class="nf">para_todos</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Esta función se encarga de inyectar variables automaticamente en el contexto de los templates (html&#39;s).</span>
+<span class="sd">    Pasa el subtotal (con un formato) de la persona logueada a todas las paginas</span>
+<span class="sd">    Esto es fundamental para el caso del header.html, ya que el header tiene el icono de carrito</span>
+<span class="sd">    Header.html se repite en todas las páginas, asi solo se programa un vez y solo es incluido en otro html (por ejemplo, index)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get_subtotal</span><span class="p">(</span><span class="n">carrito</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        El context processor get_subtotal hace que la variable llamada get_subtotal esté disponible en todos los templates.</span>
+<span class="sd">        Además, lo pasa en un cierto formato (de dos puntos decimales). Desde un template se pasará de la siguiente forma:</span>
+<span class="sd">        {{get_subtotal(carrito)}}</span>
+
+<span class="sd">        :param carrito: Diccionario que se recupera de la base de datos con datos del carrito del usuario en sesión actualmente.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: get_subtotal</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="s1">&#39;username&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">subtotal</span><span class="o">=</span><span class="mi">0</span>
+            <span class="k">for</span> <span class="n">elemento</span> <span class="ow">in</span> <span class="n">carrito</span><span class="p">:</span>
+                <span class="n">precio</span> <span class="o">=</span> <span class="n">elemento</span><span class="p">[</span><span class="s1">&#39;precio&#39;</span><span class="p">]</span>
+                <span class="n">cantidad</span><span class="o">=</span> <span class="n">elemento</span><span class="p">[</span><span class="s1">&#39;cantidad&#39;</span><span class="p">]</span>
+                <span class="n">subtotal</span> <span class="o">=</span> <span class="n">subtotal</span> <span class="o">+</span> <span class="p">(</span><span class="n">precio</span><span class="o">*</span><span class="n">cantidad</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s1">&#39;</span><span class="si">{0:.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">subtotal</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;get_subtotal&#39;</span><span class="p">:</span> <span class="n">get_subtotal</span><span class="p">}</span></div>
+
+<span class="c1">#######COMENZANDO A ASIGNAR LAS RUTAS#########</span>
+
+<div class="viewcode-block" id="index"><a class="viewcode-back" href="../code.html#UserLogin_Merca.index">[documentos]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ruta de la pagina principal, se ingresa a ella escribiendo la ruta localhost/</span>
+<span class="sd">    </span>
+<span class="sd">    :return: template index.html con todos los artículos en la base de datos</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#si hay un username en la variable sesión</span>
+    <span class="k">if</span> <span class="s1">&#39;username&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">logueado</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">set_carrito</span><span class="p">()</span>
+    <span class="c1">#Aunque no haya user logueado, se muestra las categorias y se cargan en las opciones</span>
+    <span class="n">categorias</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">categorias</span><span class="o">.</span><span class="n">find</span><span class="p">())</span>
+    <span class="n">productos</span><span class="o">=</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">articulos</span>
+    <span class="n">articulos</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">productos</span><span class="o">.</span><span class="n">find</span><span class="p">({}))</span>
+
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;index.html&#39;</span><span class="p">,</span> <span class="n">categorias</span><span class="o">=</span><span class="n">categorias</span><span class="p">,</span> <span class="n">articulos</span><span class="o">=</span><span class="n">articulos</span><span class="p">,</span> <span class="n">logueado</span><span class="o">=</span><span class="n">logueado</span><span class="p">,</span> <span class="n">carrito</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">mi_carro</span><span class="p">,</span> <span class="n">n_carro</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">n_carrito</span><span class="p">)</span></div>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/logout&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">logout</span><span class="p">():</span>
+    <span class="n">logueado</span><span class="o">=</span><span class="kc">False</span>
+    <span class="n">categorias</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">categorias</span><span class="o">.</span><span class="n">find</span><span class="p">())</span>
+    <span class="n">productos</span><span class="o">=</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">articulos</span>
+    <span class="n">articulos</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">productos</span><span class="o">.</span><span class="n">find</span><span class="p">({}))</span>
+
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;index.html&#39;</span><span class="p">,</span> <span class="n">categorias</span><span class="o">=</span><span class="n">categorias</span><span class="p">,</span> <span class="n">articulos</span><span class="o">=</span><span class="n">articulos</span><span class="p">,</span> <span class="n">logueado</span><span class="o">=</span><span class="n">logueado</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="about"><a class="viewcode-back" href="../code.html#UserLogin_Merca.about">[documentos]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/contacto&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">about</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ruta de contacto. Se entra en ella poniendo en url localhost/contacto</span>
+<span class="sd">    </span>
+<span class="sd">    :return: template contacto.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;username&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">logueado</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">set_carrito</span><span class="p">()</span>
+    <span class="n">categorias</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">categorias</span><span class="o">.</span><span class="n">find</span><span class="p">())</span>
+    <span class="n">productos</span> <span class="o">=</span> <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">articulos</span>
+    <span class="n">articulos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">productos</span><span class="o">.</span><span class="n">find</span><span class="p">({}))</span>
+
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;contacto.html&#39;</span><span class="p">,</span> <span class="n">categorias</span><span class="o">=</span><span class="n">categorias</span><span class="p">,</span> <span class="n">articulos</span><span class="o">=</span><span class="n">articulos</span><span class="p">,</span> <span class="n">logueado</span><span class="o">=</span><span class="n">logueado</span><span class="p">,</span> <span class="n">carrito</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">mi_carro</span><span class="p">,</span> <span class="n">n_carro</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">n_carrito</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="login"><a class="viewcode-back" href="../code.html#UserLogin_Merca.login">[documentos]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/login&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ruta para el inicio de sesión. Se ingresa a ella con localhost/login</span>
+<span class="sd">    Se especifica los métodos utilizados ya que aquí se obtendrá datos si se presiona un submit</span>
+<span class="sd">    La función login utiliza método POST para detectar los request a ingreso de datos. </span>
+<span class="sd">    </span>
+<span class="sd">    :return: template login.html</span>
+<span class="sd">    :return: error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#Mensaje de error que se pasará al html y será manejado con Jinja</span>
+    <span class="n">error</span><span class="o">=</span><span class="kc">None</span>
+    <span class="c1">#Base de datos, collection o tabla usuarios </span>
+    <span class="n">correos</span> <span class="o">=</span> <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">usuarios</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="c1">#Buscando el usuario con el correo que se metió en el input llamado email</span>
+        <span class="n">login_user</span> <span class="o">=</span> <span class="n">correos</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;correo&#39;</span> <span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">]})</span>
+
+        <span class="c1">#De existir el usuario se compara la contraseña de él con la contraseña en input llamado pass</span>
+        <span class="k">if</span> <span class="n">login_user</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;pass&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">login_user</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span>
+                <span class="n">session</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">))</span>
+        <span class="c1">#Si no se encontró al usuario se muestra un error en el html</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">error</span><span class="o">=</span><span class="s2">&quot;Datos erroneos&quot;</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;login.html&#39;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">error</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="registrar"><a class="viewcode-back" href="../code.html#UserLogin_Merca.registrar">[documentos]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/register&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">registrar</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ruta para el registro, se entra a ella con localhost/register</span>
+<span class="sd">    Maneja entrada de datos, se especifica método POST</span>
+<span class="sd">    </span>
+<span class="sd">    :return: template register.html</span>
+<span class="sd">    :return: error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">error</span><span class="o">=</span><span class="kc">None</span> <span class="c1">#Esto es para tirar el error de que ya existe usuario que sale en el html (linea 212)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="c1">#Si se presiona el botón registrarse dentro de un form verifico si el usuario ya tiene cuenta</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;registrarse&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Registrarse&#39;</span><span class="p">:</span>
+            <span class="n">usuarios</span> <span class="o">=</span> <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">usuarios</span>
+            <span class="n">existing_user</span> <span class="o">=</span> <span class="n">usuarios</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;correo&#39;</span> <span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">]})</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">existing_user</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">existing_user</span><span class="p">:</span>
+                <span class="n">error</span><span class="o">=</span><span class="s2">&quot;Esta cuenta ya existe &quot;</span>
+            <span class="c1">#El usuario no existe todavia, se inserta a la base de datos</span>
+            <span class="k">elif</span> <span class="n">existing_user</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> 
+                <span class="n">usuarios</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;correo&#39;</span> <span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">],</span> <span class="s1">&#39;password&#39;</span> <span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;pass&#39;</span><span class="p">],</span><span class="s1">&#39;tipo&#39;</span><span class="p">:</span><span class="s1">&#39;cliente&#39;</span><span class="p">})</span>
+                <span class="c1">#session[&#39;username&#39;] = request.form[&#39;username&#39;]</span>
+                <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">))</span>
+        <span class="c1">#En se presiona el botón de login, se redirige a la ruta login</span>
+        <span class="k">elif</span> <span class="s1">&#39;ingresa&#39;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="n">login</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;register.html&#39;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">error</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="shop_grid"><a class="viewcode-back" href="../code.html#UserLogin_Merca.shop_grid">[documentos]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/shop-grid&#39;</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;categoria_en_seleccion&#39;</span><span class="p">:</span><span class="s1">&#39;Frutas&#39;</span><span class="p">})</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/shop-grid/&lt;categoria_en_seleccion&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">shop_grid</span><span class="p">(</span><span class="n">categoria_en_seleccion</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ruta para catalogo, se ingresa a ella con localhost/shop-grid/. Por default abre las frutas</span>
+<span class="sd">    Utiliza URL converter, lo que da la capacidad de crear un URL dinámico. </span>
+<span class="sd">    Es decir, se utiliza parte del URL como una variable de búsqueda de productos por categoría</span>
+<span class="sd">    Por default la categoría en selección son las Frutas.</span>
+
+<span class="sd">    :param categoria_en_seleccion: Variable Dinamica</span>
+
+<span class="sd">    :return: template shop-grid.html</span>
+<span class="sd">    :return: categoria_en_seleccion</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">catalogo</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">productos</span><span class="o">=</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">articulos</span>
+    <span class="n">categorias</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">categorias</span><span class="o">.</span><span class="n">find</span><span class="p">())</span>
+
+    <span class="c1">#Hago una listas de diccionario [{id: adkn, nombre: &#39;Piña&#39;, &#39;cantidad&#39;: 0, &#39;categoria&#39;: &#39;Frutas&#39;, &#39;descripcion&#39;:&#39;algo&#39;, &#39;detalles&#39;:&#39;algo mas &#39;, &#39;precio&#39;: &#39;1.05&#39;}, {producto 2...}]</span>
+    <span class="n">catalogo</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">productos</span><span class="o">.</span><span class="n">find</span><span class="p">({}))</span> 
+
+    <span class="c1">#Pasando la lista manejo la carga de los productos desde el html (Linea 230)</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;shop-grid.html&#39;</span><span class="p">,</span> <span class="n">catalogo</span><span class="o">=</span><span class="n">catalogo</span><span class="p">,</span> <span class="n">categorias</span><span class="o">=</span><span class="n">categorias</span><span class="p">,</span><span class="n">categoria_en_seleccion</span><span class="o">=</span><span class="n">categoria_en_seleccion</span><span class="p">,</span> <span class="n">carrito</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">mi_carro</span><span class="p">,</span> <span class="n">n_carro</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">n_carrito</span><span class="p">,</span> <span class="n">logueado</span><span class="o">=</span><span class="n">logueado</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="single_product"><a class="viewcode-back" href="../code.html#UserLogin_Merca.single_product">[documentos]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/producto/&lt;articulo&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">single_product</span><span class="p">(</span><span class="n">articulo</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ruta de los productos. Se ingresa a ella con localhost/producto/Piña o localhost/producto/Naranja o desde la página de catalogo</span>
+<span class="sd">    Justo como con el catalogo, utiliza URL converter para pasar URL como variables (En este caso, el artículo)</span>
+<span class="sd">    &lt;articulo&gt; se pasa desde el shop-grid donde se le dé click a un producto</span>
+<span class="sd">    </span>
+<span class="sd">    También utiliza método POST en caso de Añadir un producto al carrito</span>
+<span class="sd">    </span>
+<span class="sd">    :param articulo: Variable dinamica </span>
+<span class="sd">    </span>
+<span class="sd">    :return: template single-product.html</span>
+<span class="sd">    :return: articulo</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;username&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">logueado</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">set_carrito</span><span class="p">()</span>
+    <span class="n">productos</span> <span class="o">=</span> <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">articulos</span>
+    <span class="n">catalogo_frutas</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">productos</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s1">&#39;categoria&#39;</span><span class="p">:</span> <span class="s1">&#39;Frutas&#39;</span><span class="p">})))</span>
+    <span class="n">catalogo_verduras</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">productos</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s1">&#39;categoria&#39;</span><span class="p">:</span> <span class="s1">&#39;Verduras&#39;</span><span class="p">})))</span>
+    <span class="n">mensaje</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">display</span> <span class="o">=</span> <span class="n">productos</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;nombre&#39;</span><span class="p">:</span> <span class="n">articulo</span><span class="p">})</span> <span class="c1">#Aqui busco detalles del producto escogido en mongodb</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="c1">#Si se presiona boton añadir al carrito entonces se agrega al carrito del usuario en sesión y la cantidad que especifica en el input qty</span>
+        <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;anadir&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Añadir al carrito&quot;</span><span class="p">:</span>
+            <span class="n">carrito</span> <span class="o">=</span> <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">carrito</span>
+            <span class="n">carrito</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span><span class="s1">&#39;correo&#39;</span><span class="p">:</span> <span class="n">session</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">],</span> <span class="s1">&#39;nombre&#39;</span><span class="p">:</span> <span class="n">articulo</span><span class="p">,</span> <span class="s1">&#39;cantidad&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;qty&#39;</span><span class="p">]),</span>
+                            <span class="s1">&#39;precio&#39;</span><span class="p">:</span> <span class="n">display</span><span class="p">[</span><span class="s1">&#39;precio&#39;</span><span class="p">]})</span>
+            <span class="n">mensaje</span> <span class="o">=</span> <span class="s2">&quot;Ya fue agregado al carrito&quot;</span>
+
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;single-product.html&#39;</span><span class="p">,</span> <span class="n">articulo</span><span class="o">=</span><span class="n">articulo</span><span class="p">,</span> <span class="n">display</span><span class="o">=</span><span class="n">display</span><span class="p">,</span> <span class="n">n_frutas</span><span class="o">=</span><span class="n">catalogo_frutas</span><span class="p">,</span> <span class="n">n_verduras</span><span class="o">=</span><span class="n">catalogo_verduras</span><span class="p">,</span> <span class="n">carrito</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">mi_carro</span><span class="p">,</span> <span class="n">n_carro</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">n_carrito</span><span class="p">,</span> <span class="n">logueado</span><span class="o">=</span><span class="n">logueado</span><span class="p">,</span> <span class="n">mensaje</span><span class="o">=</span><span class="n">mensaje</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="carrito"><a class="viewcode-back" href="../code.html#UserLogin_Merca.carrito">[documentos]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/cart/&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">carrito</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ruta para el carrito. Se entra a ella con localhost/cart</span>
+<span class="sd">    Esta función se encarga de mostrar todos los artículos y cantidades guardadas en cierta sesión.</span>
+<span class="sd">    Desde esta página se lleva a la pagina de pago al presionar un botón de tramitar.</span>
+
+<span class="sd">    :return: template cart.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;username&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">logueado</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">categorias</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">categorias</span><span class="o">.</span><span class="n">find</span><span class="p">())</span>
+    <span class="n">productos</span><span class="o">=</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">articulos</span>
+    <span class="n">articulos</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">productos</span><span class="o">.</span><span class="n">find</span><span class="p">({}))</span>
+    <span class="n">subtotal</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">delivery</span><span class="o">=</span><span class="mf">4.50</span>
+    <span class="n">car</span> <span class="o">=</span> <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">carrito</span>
+    <span class="n">carrito</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">car</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s1">&#39;correo&#39;</span><span class="p">:</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]}))</span> <span class="c1">#Trayendo el carrito del usuario</span>
+
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">carrito</span><span class="p">:</span>
+        <span class="n">subtotal</span><span class="o">=</span> <span class="n">subtotal</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;precio&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;cantidad&#39;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;cart.html&#39;</span><span class="p">,</span> <span class="n">ccarrito</span><span class="o">=</span><span class="n">carrito</span><span class="p">,</span> <span class="n">cant</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">carrito</span><span class="p">),</span> <span class="n">categorias</span><span class="o">=</span><span class="n">categorias</span><span class="p">,</span> <span class="n">articulos</span><span class="o">=</span><span class="n">articulos</span><span class="p">,</span> <span class="n">carrito</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">mi_carro</span><span class="p">,</span> <span class="n">n_carro</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">n_carrito</span><span class="p">,</span> <span class="n">logueado</span><span class="o">=</span><span class="n">logueado</span><span class="p">,</span> <span class="n">sub</span><span class="o">=</span><span class="n">subtotal</span><span class="p">,</span> <span class="n">deli</span><span class="o">=</span><span class="n">delivery</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="checkout"><a class="viewcode-back" href="../code.html#UserLogin_Merca.checkout">[documentos]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/pago&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span><span class="s1">&#39;GET&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">checkout</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Esta función se encarga del pago de la orden del carrito.</span>
+<span class="sd">    Tiene dos formularios: uno de actualización de datos y dirección de vivienda y otro de Pago</span>
+<span class="sd">    Al actualizar datos de la dirección de vivienda se abre el Collection usuarios y edita estos campos.</span>
+<span class="sd">    Al pagar la base de datos resta la cantidad de artículos disponibles en el Collection articulos y borra el carrito del usuario.</span>
+
+<span class="sd">    :return: template checkout.html</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">direccion_agregada</span><span class="o">=</span><span class="kc">None</span>
+    <span class="n">usuarios</span> <span class="o">=</span> <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">usuarios</span>
+    <span class="n">existing_user</span> <span class="o">=</span> <span class="n">usuarios</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;correo&#39;</span> <span class="p">:</span> <span class="n">session</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]})</span>
+    <span class="n">sub</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">car</span> <span class="o">=</span> <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">carrito</span>
+    <span class="n">carrito</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">car</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s1">&#39;correo&#39;</span><span class="p">:</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]}))</span>
+
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">carrito</span><span class="p">:</span>
+        <span class="n">sub</span><span class="o">=</span> <span class="n">sub</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;precio&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;cantidad&#39;</span><span class="p">])</span>
+    <span class="n">pago</span><span class="o">=</span><span class="kc">None</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;guardar&#39;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">:</span>
+            <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">usuarios</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;correo&#39;</span><span class="p">:</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]},{</span><span class="s2">&quot;$set&quot;</span><span class="p">:{</span><span class="s1">&#39;nombre&#39;</span><span class="p">:</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;Nombre&#39;</span><span class="p">],</span><span class="s1">&#39;apellido&#39;</span><span class="p">:</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;Apellido&#39;</span><span class="p">],</span> <span class="s1">&#39;direccion&#39;</span><span class="p">:</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;Direccion&#39;</span><span class="p">],</span> <span class="s1">&#39;barriada&#39;</span><span class="p">:</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;Barriada&#39;</span><span class="p">]</span> <span class="p">,</span> <span class="s1">&#39;telefono&#39;</span><span class="p">:</span><span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;Telefono&#39;</span><span class="p">]}})</span>
+            <span class="n">direccion_agregada</span><span class="o">=</span><span class="kc">True</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;checkout&#39;</span><span class="p">))</span>
+
+        <span class="c1">#Si se presiona el botón pagar</span>
+        <span class="k">elif</span> <span class="s1">&#39;pagar&#39;</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">carrito</span><span class="p">:</span>
+                <span class="n">articulo</span><span class="o">=</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">articulos</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s1">&#39;nombre&#39;</span><span class="p">:</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;nombre&#39;</span><span class="p">]})</span>
+                <span class="c1">#Se actualiza la cantidad de articulos en la base de datos.</span>
+                <span class="c1">#se obtiene cantidad de productos y se resta la cantidad que se pidió en el carrito</span>
+                <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">articulos</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;nombre&#39;</span><span class="p">:</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;nombre&#39;</span><span class="p">]},{</span><span class="s2">&quot;$set&quot;</span><span class="p">:{</span><span class="s1">&#39;cantidad&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">articulo</span><span class="p">[</span><span class="s1">&#39;cantidad&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;cantidad&#39;</span><span class="p">])</span> <span class="p">}})</span>
+            <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">carrito</span><span class="o">.</span><span class="n">remove</span><span class="p">({</span><span class="s1">&#39;correo&#39;</span><span class="p">:</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]})</span>
+            <span class="n">pago</span><span class="o">=</span><span class="kc">True</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;checkout.html&#39;</span><span class="p">,</span> <span class="n">usuario</span><span class="o">=</span><span class="n">existing_user</span><span class="p">,</span> <span class="n">subtotal</span><span class="o">=</span><span class="n">sub</span><span class="p">,</span> <span class="n">carrito</span><span class="o">=</span><span class="n">carrito</span><span class="p">,</span> <span class="n">pago</span><span class="o">=</span><span class="n">pago</span><span class="p">)</span></div>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/eliminar/&lt;articulo&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">eliminarcarrito</span><span class="p">(</span><span class="n">articulo</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;username&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">logueado</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">del_carrito</span><span class="p">(</span><span class="n">articulo</span><span class="p">)</span>
+
+    <span class="n">categorias</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">categorias</span><span class="o">.</span><span class="n">find</span><span class="p">())</span>
+    <span class="n">productos</span><span class="o">=</span><span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">articulos</span>
+    <span class="n">articulos</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">productos</span><span class="o">.</span><span class="n">find</span><span class="p">({}))</span>
+    <span class="n">subtotal</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">car</span> <span class="o">=</span> <span class="n">mongo</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">carrito</span>
+    <span class="n">carrito</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">car</span><span class="o">.</span><span class="n">find</span><span class="p">({</span><span class="s1">&#39;correo&#39;</span><span class="p">:</span><span class="n">session</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]}))</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">carrito</span><span class="p">:</span>
+        <span class="n">subtotal</span><span class="o">=</span> <span class="n">subtotal</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;precio&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;cantidad&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;cart.html&#39;</span><span class="p">,</span> <span class="n">ccarrito</span><span class="o">=</span><span class="n">carrito</span><span class="p">,</span> <span class="n">cant</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">carrito</span><span class="p">),</span> <span class="n">categorias</span><span class="o">=</span><span class="n">categorias</span><span class="p">,</span> <span class="n">articulos</span><span class="o">=</span><span class="n">articulos</span><span class="p">,</span> <span class="n">carrito</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">mi_carro</span><span class="p">,</span> <span class="n">n_carro</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">n_carrito</span><span class="p">,</span> <span class="n">logueado</span><span class="o">=</span><span class="n">logueado</span><span class="p">,</span> <span class="n">sub</span><span class="o">=</span><span class="n">subtotal</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">sphinx documentation</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navegación</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../code.html">Documentación del código</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Código de módulo</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Búsqueda rápida</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Ir a" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Bryan Campos, Evacecilia Pimentel, Ingridt Rodríguez, Nelson Rodríguez.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
