@@ -5,18 +5,19 @@
 
 Bienvenido a la documentación de MercaPanamá Delivery! Proyecto de Topicos Especiales II
 ================================================
+Esta página muestra el objetivo de cada función, sus parametros y las variables que devuelve.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   
-   code
 
+   summary
+   code
+   modelos
 
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
